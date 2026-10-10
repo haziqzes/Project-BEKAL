@@ -125,9 +125,9 @@ Verified Phase 1 behavior:
 - dependency audit reported no vulnerabilities at acceptance time
 - Docker services healthy
 
-## Current Phase
+### Phase 2 — Receipt Extraction ✅
 
-### Phase 2 — Receipt Extraction ✅ Implementation complete; owner review pending
+Accepted commit: `cc684f0 feat: add receipt text extraction and local OCR fallback` (pushed to private `origin/master`).
 
 Verified Phase 2 behavior:
 
@@ -140,7 +140,21 @@ Verified Phase 2 behavior:
 - synthetic text and scanned PDFs were verified in the browser
 - backend tests and frontend build pass; all Compose services are healthy
 
-Current handoff: Phase 2 has reached its exit condition. Changes are uncommitted for owner review. Do not begin Phase 3 until the owner accepts or redirects the work.
+## Current Phase
+
+### Phase 3 — Review & Normalization ✅ Implementation complete; owner review pending
+
+Verified Phase 3 behavior:
+
+- conservative product-name cleanup, predefined categories, and supported quantity/unit inference
+- missing or uncertain fields visibly flagged; item totals reconciled with subtotal or receipt total
+- original PDF beside an editable temporary candidate
+- pen action, row edit/save/cancel, add/delete rows, and editable metadata
+- manual-entry form for no-data and extraction-error cases
+- browser verification with synthetic text and scanned receipts; backend tests and frontend build pass
+- PostgreSQL still contains only the foundation migration table; receipt data remains temporary
+
+Current handoff: Phase 3 has reached its exit condition. Changes are uncommitted for owner review. Do not begin Phase 4 until the owner accepts or redirects the work.
 
 ---
 
@@ -665,8 +679,8 @@ If those conditions pass:
 ```text
 Phase 0  Foundation                    ✅
 Phase 1  Receipt intake / preview      ✅
-Phase 2  Receipt extraction            ✅ review pending
-Phase 3  Review & normalization
+Phase 2  Receipt extraction            ✅
+Phase 3  Review & normalization        ✅ review pending
 Phase 4  Persistence
 Phase 5  History / CRUD
 Phase 6  Dashboard
@@ -680,186 +694,13 @@ No phase should silently consume the next phase's scope.
 
 ---
 
-# 19. Current Mission — Phase 2 Only
+# 19. Current Mission — Phase 3 Review Handoff
 
-## Objective
+Phase 3 was accepted for implementation after Phase 2 commit `cc684f0`. Its objective is to turn an imperfect temporary extraction into a user-reviewable and editable candidate while keeping the original PDF as the source of truth.
 
-Convert a temporary receipt PDF candidate into structured **temporary candidate receipt data** without permanently saving receipt information to PostgreSQL.
+The Phase 3 exit condition is met when a user can compare the PDF with structured metadata and item rows, correct fields, edit/save/cancel rows, add/delete rows, resolve review warnings, reconcile totals, and manually enter data if extraction is unusable. All corrections remain temporary. Permanent persistence and all Phase 4+ features are excluded.
 
-## Required processing order
-
-```text
-PDF candidate
-     ↓
-Attempt embedded-text extraction
-     ↓
-Is usable text available?
-     ├── Yes → parse extracted text
-     └── No  → OCR fallback
-                   ↓
-            parse OCR text
-                   ↓
-         structured candidate
-```
-
-Direct text extraction must always be preferred when usable embedded text exists.
-
-## Implement
-
-### Embedded PDF text extraction
-
-- extract selectable/embedded text
-- support multi-page receipts
-- define a practical heuristic for whether extracted text is usable
-- avoid OCR when direct text is usable
-
-### Local OCR fallback
-
-- render/extract scanned PDF pages locally
-- OCR locally
-- no paid API
-- no mandatory cloud service
-- keep OCR implementation modular
-
-### Receipt metadata candidate extraction
-
-Attempt to identify:
-
-- store name
-- receipt date
-- receipt/invoice number where available
-- payment method where available
-- subtotal where available
-- discounts where available
-- tax where available
-- final total
-- currency (`MYR` for V0.1)
-
-Missing values are acceptable.
-
-Do not fabricate values merely to complete the schema.
-
-### Line-item candidate extraction
-
-Extract, where available:
-
-```text
-raw/display product text
-quantity
-unit
-unit price
-line total
-```
-
-Phase 2 does **not** need sophisticated normalization or categorization.
-
-Preserve imperfect/cryptic item names as candidate text.
-
-### Candidate response
-
-Return structured temporary candidate data to the frontend.
-
-Conceptual example:
-
-```json
-{
-  "candidate_id": "...",
-  "extraction_method": "embedded_text",
-  "receipt": {
-    "store_name": "...",
-    "receipt_date": "...",
-    "receipt_number": "...",
-    "payment_method": "...",
-    "subtotal": null,
-    "discount_total": null,
-    "tax_total": null,
-    "final_total": 84.70,
-    "currency": "MYR"
-  },
-  "items": [
-    {
-      "display_name": "AYM BRST FZN",
-      "quantity": 1,
-      "unit": "kg",
-      "unit_price": 15.90,
-      "line_total": 15.90
-    }
-  ]
-}
-```
-
-Exact naming should follow established project conventions.
-
-### Frontend
-
-Extend the existing candidate view only enough to display:
-
-- extraction status
-- extraction method (`embedded_text` or `ocr`)
-- extracted receipt metadata
-- extracted line-item table
-- original PDF preview alongside extracted results where practical
-
-Full editing belongs to Phase 3.
-
-## Phase 2 tests
-
-Use synthetic data to cover at least:
-
-1. text-based PDF receipt
-2. scanned/image PDF requiring OCR
-3. multi-page PDF
-4. receipt with partially missing metadata
-5. malformed/unparseable receipt content
-6. verification that OCR is skipped when embedded text is usable
-
-No real receipt may be committed.
-
-## Explicitly do not implement in Phase 2
-
-- permanent receipt persistence
-- permanent receipt database records
-- product aliases
-- canonical product normalization
-- categories
-- learning from corrections
-- row editing
-- add/delete row UI
-- total reconciliation beyond parsed values
-- duplicate detection
-- receipt history
-- dashboard analytics
-- CSV export
-- authentication
-- recipes
-- pantry
-- budgeting
-- HANA integration
-
-## Phase 2 exit condition
-
-Phase 2 is complete when:
-
-> **A user can upload either a text-based or scanned synthetic receipt PDF and BEKAL produces a structured temporary candidate containing receipt metadata and line items while clearly indicating whether embedded-text extraction or OCR was used.**
-
-The extracted candidate remains temporary.
-
-PostgreSQL must not become the permanent receipt store yet.
-
-When the exit condition is met:
-
-1. run all backend tests,
-2. run the frontend build,
-3. run relevant dependency/security checks,
-4. verify all Compose services are healthy,
-5. perform at least one synthetic browser-level/manual verification,
-6. inspect `git status`,
-7. review the diff,
-8. verify no private/runtime data are tracked,
-9. update the **Current Execution State** section of this file to describe the completed work,
-10. leave implementation changes uncommitted for owner review unless the owner explicitly instructed otherwise,
-11. stop,
-12. do **not** begin Phase 3 automatically.
+Implementation is complete and uncommitted for owner review. Do not begin Phase 4 automatically. Once accepted, update this mission and the Current Execution State for the next authorized phase.
 
 ---
 

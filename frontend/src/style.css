@@ -8,7 +8,7 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; }
-.shell { max-width: 1100px; margin: 0 auto; padding: 80px 24px; }
+.shell { max-width: 1440px; margin: 0 auto; padding: 60px 24px; }
 .eyebrow { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; color: #527c68; }
 h1 { margin: 16px 0; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.12; }
 .intro { max-width: 650px; line-height: 1.65; color: #53645b; }
@@ -39,4 +39,24 @@ th { color: #53645b; }
 .page-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
 .status-row { display: flex; justify-content: space-between; gap: 24px; padding: 13px 0; border-top: 1px solid #eef1ec; }
 .status-row strong { text-transform: capitalize; }
+.review-panel h3 { margin-top: 0; }
+.review-note { color: #53645b; line-height: 1.5; }
+.field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.field { display: grid !important; gap: 5px; margin: 0 !important; font-size: 0.85rem; }
+.field input, .field select { width: 100%; min-width: 0; padding: 8px; border: 1px solid #b7cabb; border-radius: 5px; color: #18302b; background: white; font: inherit; }
+.section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: 22px 0 10px; }
+.section-heading h4 { margin: 0; }
+.raw-name, .row-warnings { display: block; margin-top: 3px; white-space: normal; }
+.raw-name { color: #53645b; }
+.row-warnings, .warning { color: #905d0d; }
+.row-actions { display: flex; gap: 5px; }
+.row-actions button { padding: 5px 7px; }
+.icon-button { font-size: 1.1rem; }
+.delete-button { background: white; color: #a52727; border-color: #cfaaa7; }
+.row-editor { margin-top: 16px; padding: 16px; border: 1px solid #b7cabb; border-radius: 7px; }
+.row-editor h5 { margin: 0 0 10px; font-size: 1rem; }
+.reconciliation { margin-top: 20px; padding: 12px; background: #eef6ef; border-radius: 5px; }
+.reconciliation.warning { background: #fff5e7; }
+.ready-state { color: #23654c; font-weight: 600; }
 @media (max-width: 760px) { .candidate-content { grid-template-columns: 1fr; } }
+@media (max-width: 540px) { .field-grid { grid-template-columns: 1fr; } }

@@ -10,6 +10,7 @@ from pypdf import PdfReader
 
 from app.candidates import CandidateStore
 from app.extraction import extract_candidate
+from app.review import CATEGORIES, prepare_review
 
 router = APIRouter(prefix="/api/candidates", tags=["receipt intake"])
 MAX_PDF_BYTES = 10 * 1024 * 1024
@@ -73,7 +74,8 @@ def extract_receipt_candidate(candidate_id: UUID, request: Request) -> dict:
         result = extract_candidate(candidate.path)
     except TesseractNotFoundError as exc:
         raise HTTPException(status_code=503, detail="Local OCR is unavailable; install Tesseract") from exc
-    return {"candidate_id": str(candidate.id), **result.model_dump()}
+    return {"candidate_id": str(candidate.id), **result.model_dump(),
+            "review": prepare_review(result).model_dump(), "categories": CATEGORIES}
 
 
 @router.delete("/{candidate_id}", status_code=204)

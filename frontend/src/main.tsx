@@ -1,6 +1,7 @@
 import { StrictMode, useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { PdfPreview } from './PdfPreview'
+import { ReviewPanel, type Review } from './ReviewPanel'
 import './style.css'
 
 type HealthState = 'checking' | 'healthy' | 'unavailable'
@@ -29,10 +30,23 @@ type ExtractionData = {
   extraction_status: 'extracted' | 'no_data'
   receipt: ReceiptData
   items: ItemData[]
+  review: Review
+  categories: string[]
 }
 
-function money(value: number | null): string {
-  return value === null ? '—' : value.toFixed(2)
+const CATEGORIES = [
+  'Meat & Poultry', 'Seafood', 'Vegetables', 'Fruit', 'Dairy', 'Eggs',
+  'Rice & Grains', 'Bread & Bakery', 'Drinks', 'Snacks', 'Frozen Food',
+  'Canned / Packaged Food', 'Condiments', 'Household', 'Personal Care', 'Other',
+]
+
+function manualExtraction(candidateId: string): ExtractionData {
+  return { candidate_id: candidateId, extraction_method: 'embedded_text', extraction_status: 'no_data',
+    receipt: { store_name: null, receipt_date: null, receipt_number: null, payment_method: null,
+      subtotal: null, discount_total: null, tax_total: null, final_total: null, currency: 'MYR' },
+    items: [], categories: CATEGORIES,
+    review: { receipt: { store_name: null, receipt_date: null, receipt_number: null, payment_method: null,
+      subtotal: null, discount_total: null, tax_total: null, final_total: null, currency: 'MYR' }, items: [] } }
 }
 
 function App() {
@@ -70,14 +84,16 @@ function App() {
   async function extract(candidateId: string) {
     setExtracting(true)
     setExtractionError('')
+    setExtraction(null)
     try {
       const response = await fetch(`/api/candidates/${candidateId}/extract`, { method: 'POST' })
-      if (!response.ok) throw new Error('Could not extract this receipt. The candidate may have expired.')
+      if (!response.ok) throw new Error(response.status === 404 ? 'The temporary candidate expired. Upload the PDF again.' : 'Extraction failed. Enter the receipt details manually while checking the original PDF.')
       const result: ExtractionData = await response.json()
       if (activeCandidateId.current === candidateId) setExtraction(result)
     } catch (cause) {
       if (activeCandidateId.current === candidateId) {
         setExtractionError(cause instanceof Error ? cause.message : 'Extraction failed.')
+        if (!(cause instanceof Error) || !cause.message.includes('expired')) setExtraction(manualExtraction(candidateId))
       }
     } finally {
       if (activeCandidateId.current === candidateId) setExtracting(false)
@@ -143,10 +159,10 @@ function App() {
   return (
     <main className="shell">
       <header>
-        <p className="eyebrow">Project BEKAL · V0.1 receipt extraction</p>
+        <p className="eyebrow">Project BEKAL · V0.1 receipt review</p>
         <h1>Receipt data, under your control.</h1>
         <p className="intro">
-          Select a PDF receipt to preview it and extract temporary candidate data. Nothing is saved as a receipt yet.
+          Select a PDF receipt, compare its extracted details with the original, and correct a temporary candidate. Nothing is saved as a receipt yet.
         </p>
       </header>
 
@@ -177,42 +193,9 @@ function App() {
             <div className="candidate-content">
               <PdfPreview url={candidate.preview_url} />
               <section className="extraction-panel" aria-label="Extracted candidate data" aria-live="polite">
-                <h3>Extracted candidate</h3>
                 {extracting && <p>Extracting receipt text…</p>}
                 {extractionError && <p role="alert" className="error">{extractionError}</p>}
-                {extraction && (
-                  <>
-                    <p><strong>Method:</strong> {extraction.extraction_method === 'ocr' ? 'Local OCR' : 'Embedded text'}</p>
-                    <p><strong>Status:</strong> {extraction.extraction_status === 'extracted' ? 'Candidate data found' : 'No structured data found'}</p>
-                    <dl className="metadata">
-                      <dt>Store</dt><dd>{extraction.receipt.store_name ?? '—'}</dd>
-                      <dt>Date</dt><dd>{extraction.receipt.receipt_date ?? '—'}</dd>
-                      <dt>Receipt number</dt><dd>{extraction.receipt.receipt_number ?? '—'}</dd>
-                      <dt>Payment</dt><dd>{extraction.receipt.payment_method ?? '—'}</dd>
-                      <dt>Subtotal (MYR)</dt><dd>{money(extraction.receipt.subtotal)}</dd>
-                      <dt>Discount (MYR)</dt><dd>{money(extraction.receipt.discount_total)}</dd>
-                      <dt>Tax (MYR)</dt><dd>{money(extraction.receipt.tax_total)}</dd>
-                      <dt>Total (MYR)</dt><dd>{money(extraction.receipt.final_total)}</dd>
-                    </dl>
-                    <h4>Line items</h4>
-                    {extraction.items.length === 0 ? <p>No line items identified.</p> : (
-                      <div className="table-scroll">
-                        <table>
-                          <thead><tr><th>Item text</th><th>Qty</th><th>Unit</th><th>Unit price</th><th>Line total</th></tr></thead>
-                          <tbody>{extraction.items.map((item, index) => (
-                            <tr key={`${item.display_name}-${index}`}>
-                              <td>{item.display_name}</td>
-                              <td>{item.quantity ?? '—'}</td>
-                              <td>{item.unit ?? '—'}</td>
-                              <td>{money(item.unit_price)}</td>
-                              <td>{money(item.line_total)}</td>
-                            </tr>
-                          ))}</tbody>
-                        </table>
-                      </div>
-                    )}
-                  </>
-                )}
+                {extraction && <ReviewPanel review={extraction.review} categories={extraction.categories} method={extraction.extraction_status === 'no_data' ? 'manual' : extraction.extraction_method} />}
               </section>
             </div>
           </div>
