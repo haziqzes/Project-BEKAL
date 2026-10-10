@@ -58,5 +58,9 @@ th { color: #53645b; }
 .reconciliation { margin-top: 20px; padding: 12px; background: #eef6ef; border-radius: 5px; }
 .reconciliation.warning { background: #fff5e7; }
 .ready-state { color: #23654c; font-weight: 600; }
+.confirm-panel { margin-top: 20px; padding: 16px; border: 1px solid #b7cabb; border-radius: 7px; }
+.confirm-panel label { display: flex; align-items: flex-start; gap: 9px; font-weight: 500; }
+.confirm-panel input { margin-top: 4px; }
+.saved-result { margin-top: 24px; padding: 16px; background: #eef6ef; border-radius: 7px; }
 @media (max-width: 760px) { .candidate-content { grid-template-columns: 1fr; } }
 @media (max-width: 540px) { .field-grid { grid-template-columns: 1fr; } }

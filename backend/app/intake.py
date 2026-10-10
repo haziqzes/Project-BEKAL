@@ -1,6 +1,8 @@
 """PDF-only temporary intake endpoints for Phase 1."""
 
+import os
 from io import BytesIO
+from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
@@ -11,6 +13,7 @@ from pypdf import PdfReader
 from app.candidates import CandidateStore
 from app.extraction import extract_candidate
 from app.review import CATEGORIES, prepare_review
+from app.persistence import ConfirmInput, confirm_candidate
 
 router = APIRouter(prefix="/api/candidates", tags=["receipt intake"])
 MAX_PDF_BYTES = 10 * 1024 * 1024
@@ -82,3 +85,12 @@ def extract_receipt_candidate(candidate_id: UUID, request: Request) -> dict:
 def discard_candidate(candidate_id: UUID, request: Request) -> None:
     if not candidate_store(request).delete(candidate_id):
         raise HTTPException(status_code=404, detail="Candidate not found or expired")
+
+
+@router.post("/{candidate_id}/confirm")
+def confirm_receipt_candidate(candidate_id: UUID, payload: ConfirmInput, request: Request) -> dict:
+    database_url = os.getenv("DATABASE_URL")
+    if not database_url:
+        raise HTTPException(status_code=503, detail="Database is not configured")
+    storage_root = Path(os.getenv("RECEIPT_STORAGE_DIR", "../runtime-data/receipts"))
+    return confirm_candidate(candidate_id, payload, candidate_store(request), database_url, storage_root)

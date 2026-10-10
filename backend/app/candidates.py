@@ -48,10 +48,11 @@ class CandidateStore:
         return candidate
 
     def delete(self, candidate_id: UUID) -> bool:
-        candidate = self._candidates.pop(candidate_id, None)
+        candidate = self._candidates.get(candidate_id)
         if candidate is None:
             return False
         candidate.path.unlink(missing_ok=True)
+        self._candidates.pop(candidate_id, None)
         return True
 
     def cleanup_expired(self) -> None:

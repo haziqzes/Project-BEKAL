@@ -140,9 +140,9 @@ Verified Phase 2 behavior:
 - synthetic text and scanned PDFs were verified in the browser
 - backend tests and frontend build pass; all Compose services are healthy
 
-## Current Phase
+### Phase 3 — Review & Normalization ✅
 
-### Phase 3 — Review & Normalization ✅ Implementation complete; owner review pending
+Accepted commit: `e8aa328 feat: add receipt review and normalization workflow` (pushed to private `origin/master`).
 
 Verified Phase 3 behavior:
 
@@ -154,7 +154,23 @@ Verified Phase 3 behavior:
 - browser verification with synthetic text and scanned receipts; backend tests and frontend build pass
 - PostgreSQL still contains only the foundation migration table; receipt data remains temporary
 
-Current handoff: Phase 3 has reached its exit condition. Changes are uncommitted for owner review. Do not begin Phase 4 until the owner accepts or redirects the work.
+## Current Phase
+
+### Phase 4 — Persistence ✅ Implementation complete; owner review pending
+
+Verified Phase 4 behavior:
+
+- Alembic migration creates receipts, receipt items, products, aliases, and 16 predefined categories
+- explicit review acknowledgement and Confirm & Save before permanent storage
+- duplicate warning with an optional Save anyway action; UUID-based repeated-save protection
+- simple product reuse and confirmed alias learning with conservative conflict handling
+- private sanitized PDF naming, collision suffixes, and relative path references in PostgreSQL
+- database and file error paths retain the temporary candidate; successful saves remove it
+- synthetic text and scanned/OCR receipts were saved through the browser and inspected in PostgreSQL and private storage
+- backend tests, frontend build, security audit, fresh and existing database migrations, and Compose health checks pass
+- runtime PDFs, database data, `.env`, and other private data remain ignored by Git
+
+Current handoff: Phase 4 has reached its exit condition. Do not begin Phase 5 until the owner accepts or redirects the work.
 
 ---
 
@@ -680,8 +696,8 @@ If those conditions pass:
 Phase 0  Foundation                    ✅
 Phase 1  Receipt intake / preview      ✅
 Phase 2  Receipt extraction            ✅
-Phase 3  Review & normalization        ✅ review pending
-Phase 4  Persistence
+Phase 3  Review & normalization        ✅
+Phase 4  Persistence                   ✅ review pending
 Phase 5  History / CRUD
 Phase 6  Dashboard
 Phase 7  CSV export
@@ -694,13 +710,13 @@ No phase should silently consume the next phase's scope.
 
 ---
 
-# 19. Current Mission — Phase 3 Review Handoff
+# 19. Current Mission — Phase 4 Persistence Handoff
 
-Phase 3 was accepted for implementation after Phase 2 commit `cc684f0`. Its objective is to turn an imperfect temporary extraction into a user-reviewable and editable candidate while keeping the original PDF as the source of truth.
+Phase 4 was approved after Phase 3 commit `e8aa328`. Its objective is to make a reviewed temporary candidate permanent only after explicit confirmation.
 
-The Phase 3 exit condition is met when a user can compare the PDF with structured metadata and item rows, correct fields, edit/save/cancel rows, add/delete rows, resolve review warnings, reconcile totals, and manually enter data if extraction is unusable. All corrections remain temporary. Permanent persistence and all Phase 4+ features are excluded.
+The Phase 4 exit condition is met when Confirm & Save stores structured receipt data in PostgreSQL, stores the original PDF privately, warns about likely duplicates, reuses products and simple aliases conservatively, handles ordinary failures without partial saves, and removes the temporary candidate after success. Synthetic browser, migration, and automated tests verify this path.
 
-Implementation is complete and uncommitted for owner review. Do not begin Phase 4 automatically. Once accepted, update this mission and the Current Execution State for the next authorized phase.
+Implementation is complete. The owner requested the completed Phase 4 work be pushed to the existing private repository after final review. Do not begin Phase 5 automatically. A future phase requires owner direction.
 
 ---
 

@@ -10,6 +10,7 @@ export type Item = {
   unit_price: number | null; line_total: number | null; category: string; warnings: string[]
 }
 export type Review = { receipt: Receipt; items: Item[] }
+export type SavedReceipt = { status: 'stored'; id: string; store_name: string | null; receipt_date: string | null; item_count: number; final_total: number | null }
 type Row = Item & { id: string; reviewed: boolean }
 type NumericKey = 'subtotal' | 'discount_total' | 'tax_total' | 'final_total'
 
@@ -32,21 +33,30 @@ function itemWarnings(row: Row): string[] {
   return warnings
 }
 
-export function ReviewPanel({ review, categories, method }: {
-  review: Review; categories: string[]; method: string
+export function ReviewPanel({ review, categories, method, candidateId, onSaved }: {
+  review: Review; categories: string[]; method: string; candidateId: string; onSaved: (receipt: SavedReceipt) => void
 }) {
   const [receipt, setReceipt] = useState<Receipt>(review.receipt)
   const [rows, setRows] = useState<Row[]>(() => review.items.map(item => ({ ...item, id: crypto.randomUUID(), reviewed: false })))
   const [editing, setEditing] = useState<string | null>(null)
   const [draft, setDraft] = useState<Item>(emptyItem())
   const [editError, setEditError] = useState('')
+  const [acknowledged, setAcknowledged] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
+  const [duplicate, setDuplicate] = useState<'exact_file' | 'possible_receipt' | null>(null)
 
   useEffect(() => {
     setReceipt(review.receipt)
     setRows(review.items.map(item => ({ ...item, id: crypto.randomUUID(), reviewed: false })))
     setEditing(null)
     setEditError('')
+    setAcknowledged(false)
+    setSaveError('')
+    setDuplicate(null)
   }, [review])
+
+  useEffect(() => { setDuplicate(null) }, [receipt, rows])
 
   const reconciliation = useMemo(() => {
     if (rows.length === 0 || rows.some(row => row.line_total === null)) return { warning: true, text: 'Enter a line total for every item to compare totals.' }
@@ -99,6 +109,36 @@ export function ReviewPanel({ review, categories, method }: {
     setEditError('')
   }
 
+  async function confirmSave(allowDuplicate: boolean) {
+    if (!acknowledged || saving) return
+    setSaving(true)
+    setSaveError('')
+    try {
+      const response = await fetch(`/api/candidates/${candidateId}/confirm`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ receipt, items: rows.map(row => ({
+          raw_name: row.raw_name || null, display_name: row.display_name, quantity: row.quantity,
+          unit: row.unit, unit_price: row.unit_price, line_total: row.line_total,
+          category: row.category, review_flag: itemWarnings(row).length > 0,
+        })), allow_duplicate: allowDuplicate }),
+      })
+      const result = await response.json()
+      if (response.status === 409 && result.detail?.code === 'possible_duplicate') {
+        setDuplicate(result.detail.match_kind)
+        return
+      }
+      if (!response.ok) {
+        const detail = result.detail
+        throw new Error(detail?.code === 'alias_conflict' ? `The source name “${detail.source_name}” already maps to a different product. Keep its existing name or revise this row.` : typeof detail === 'string' ? detail : 'Could not save. The temporary candidate is still available.')
+      }
+      onSaved(result as SavedReceipt)
+    } catch (cause) {
+      setSaveError(cause instanceof Error ? cause.message : 'Could not save. The temporary candidate is still available.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const textField = (label: string, key: 'store_name' | 'receipt_date' | 'receipt_number' | 'payment_method', type = 'text') => (
     <label className="field">{label}<input aria-label={label} type={type} value={receipt[key] ?? ''}
       onChange={event => setReceipt(current => ({ ...current, [key]: event.target.value || null }))} /></label>
@@ -108,7 +148,7 @@ export function ReviewPanel({ review, categories, method }: {
       value={receipt[key] ?? ''} onChange={event => setReceipt(current => ({ ...current, [key]: numberValue(event.target.value) }))} /></label>
   )
   const draftNumber = (label: string, key: 'quantity' | 'unit_price' | 'line_total') => (
-    <label className="field">{label}<input aria-label={label} type="number" min="0" step="0.01"
+    <label className="field">{label}<input aria-label={label} type="number" min="0" step={key === 'quantity' ? '0.001' : '0.01'}
       value={draft[key] ?? ''} onChange={event => setDraft(current => ({ ...current, [key]: numberValue(event.target.value) }))} /></label>
   )
 
@@ -151,6 +191,12 @@ export function ReviewPanel({ review, categories, method }: {
       <div className="actions"><button type="button" onClick={saveRow}>Save row</button><button type="button" className="secondary" onClick={() => { if (rows.find(row => row.id === editing)?.raw_name === '' && !rows.find(row => row.id === editing)?.display_name) setRows(current => current.filter(row => row.id !== editing)); setEditing(null); setEditError('') }}>Cancel</button></div>
     </div>}
     <div className={reconciliation.warning ? 'reconciliation warning' : 'reconciliation'} role="status">{reconciliation.warning ? '⚠ ' : '✓ '}{reconciliation.text}</div>
-    <p className={ready ? 'ready-state' : 'warning'} role="status">{ready ? '✓ Temporary candidate is ready for later confirmation and saving.' : `⚠ Review needed: ${rowWarningCount} item row(s) flagged${metadataWarning ? ', metadata incomplete' : ''}${reconciliation.warning ? ', totals need review' : ''}.`}</p>
+    <p className={ready ? 'ready-state' : 'warning'} role="status">{ready ? '✓ Temporary candidate is ready to confirm and save.' : `⚠ Review needed: ${rowWarningCount} item row(s) flagged${metadataWarning ? ', metadata incomplete' : ''}${reconciliation.warning ? ', totals need review' : ''}.`}</p>
+    <div className="confirm-panel">
+      <label><input type="checkbox" checked={acknowledged} onChange={event => setAcknowledged(event.target.checked)} /> I compared this candidate with the original PDF and accept any remaining warnings.</label>
+      <div className="actions"><button type="button" disabled={!acknowledged || saving || editing !== null || rows.length === 0} onClick={() => void confirmSave(false)}>{saving ? 'Saving…' : 'Confirm & Save'}</button></div>
+      {duplicate && <div className="warning" role="alert"><p>⚠ {duplicate === 'exact_file' ? 'This exact PDF was saved before.' : 'A receipt with matching details may already be saved.'} Review the PDF before continuing.</p><button type="button" className="secondary" disabled={saving || !acknowledged} onClick={() => void confirmSave(true)}>Save anyway</button></div>}
+      {saveError && <p role="alert" className="error">{saveError}</p>}
+    </div>
   </section>
 }

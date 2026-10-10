@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8,<9", "httpx>=0.28,<1", "reportlab>=4,<5"]
+dev = ["pytest>=9.0.3,<10", "httpx>=0.28,<1", "reportlab>=4,<5"]
 
 [tool.setuptools.packages.find]
 include = ["app*"]

@@ -1,12 +1,13 @@
-"""Filename convention reserved for future confirmed receipt storage."""
+"""Safe human-readable filenames for confirmed private receipt storage."""
 
 import re
 import unicodedata
 from datetime import date
 
 
-def future_receipt_filename(receipt_date: date, store_name: str) -> str:
-    """Build YYYY-MM-DD_store.pdf without trusting store text as a path."""
-    ascii_name = unicodedata.normalize("NFKD", store_name).encode("ascii", "ignore").decode("ascii")
+def future_receipt_filename(receipt_date: date | None, store_name: str | None) -> str:
+    """Use date/store when known; never invent missing source metadata."""
+    ascii_name = unicodedata.normalize("NFKD", store_name or "").encode("ascii", "ignore").decode("ascii")
     slug = re.sub(r"[^a-z0-9]+", "-", ascii_name.lower()).strip("-") or "store"
-    return f"{receipt_date.isoformat()}_{slug[:80].rstrip('-')}.pdf"
+    date_part = receipt_date.isoformat() if receipt_date else "undated"
+    return f"{date_part}_{slug[:80].rstrip('-')}.pdf"

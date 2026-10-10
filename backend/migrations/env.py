@@ -1,13 +1,14 @@
 import os
 from alembic import context
 from sqlalchemy import engine_from_config, pool
+from app.schema import metadata
 
 config = context.config
 database_url = os.getenv("DATABASE_URL")
 if database_url:
     config.set_main_option("sqlalchemy.url", database_url.replace("%", "%%"))
 
-target_metadata = None
+target_metadata = metadata
 
 
 def run_migrations_offline() -> None:

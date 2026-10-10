@@ -1,6 +1,6 @@
 # BEKAL
 
-BEKAL is a local-first receipt intelligence project created by **Wan Mohamad Haziq Mirza**. V0.1 aims to turn receipt PDFs into reviewed, structured data for storage, simple analysis, and CSV export. The current codebase includes **Phase 3 temporary review**: PDF intake and preview, embedded-text extraction, local OCR fallback, conservative normalization, warnings, and editable candidate data.
+BEKAL is a local-first receipt intelligence project created by **Wan Mohamad Haziq Mirza**. V0.1 aims to turn receipt PDFs into reviewed, structured data for storage, simple analysis, and CSV export. The current codebase includes **Phase 4 confirmed local persistence**: PDF intake, extraction, review, explicit confirmation, PostgreSQL receipt data, and private original-PDF storage.
 
 ## Quick start
 
@@ -10,7 +10,7 @@ Requires Docker Desktop with Compose.
 2. Run `docker compose up --build -d`.
 3. Run `docker compose ps` and wait until `frontend`, `backend`, and `postgres` are healthy.
 4. Run `docker compose exec backend alembic upgrade head`.
-5. Open `http://localhost:5173`. Select a PDF to compare its original with a temporary editable candidate.
+5. Open `http://localhost:5173`. Select a PDF, review and correct the candidate beside the original, then explicitly confirm to save.
 
 API checks: `http://localhost:8000/api/health` and `http://localhost:8000/api/health/db`.
 
@@ -22,13 +22,15 @@ Stop services with `docker compose down`. PostgreSQL data persists in its named 
 
 The approved V0.1 scope is in `BEKAL_Requirements_V0.1.md` and the other `BEKAL_*` design documents. Recipes, pantry tracking, budgeting, authentication, mobile apps, and cloud services are outside V0.1.
 
-Real receipts, database files, exports, credentials, and runtime data belong outside source control. `runtime-data/` is mounted for future local receipt storage and ignored by Git. Use only synthetic fixtures in `examples/synthetic/`.
+Real receipts, database files, exports, credentials, and runtime data belong outside source control. `runtime-data/` holds private local receipt files and is ignored by Git. Use only synthetic fixtures in `examples/synthetic/`.
 
-Phase 1 PDFs are held in `runtime-data/candidates/` for at most one hour. They are removed when discarded, on backend restart, or after expiry. The original filename is never used as a storage path. No receipt is permanently saved or added to PostgreSQL at this stage.
+Phase 1 PDFs are held in `runtime-data/candidates/` for at most one hour. They are removed when discarded, on backend restart, after expiry, or after a confirmed save. The original filename is never used as a storage path. Upload and extraction alone do not save receipt data to PostgreSQL.
 
 Phase 2 attempts selectable PDF text first and runs local Tesseract OCR only if that text is unusable. The candidate view shows the extraction method, available receipt metadata, and line items. Missing fields remain blank. Extraction results are returned to the browser only; they are not saved to PostgreSQL. The Docker backend includes Tesseract. Host-based backend development needs a local Tesseract installation for scanned PDFs.
 
-Phase 3 prepares conservative product names, initial categories, quantity/unit guesses only when supported, and review warnings. In the browser, edit receipt fields and item rows, add or delete rows, and compare item totals with the subtotal or receipt total. When extraction produces no usable data or fails, the same form supports manual entry with the original PDF visible. Edits live only in browser memory and disappear on refresh, re-extraction, or discard. There is no save or permanent receipt storage yet.
+Phase 3 prepares conservative product names, initial categories, quantity/unit guesses only when supported, and review warnings. In the browser, edit receipt fields and item rows, add or delete rows, and compare item totals with the subtotal or receipt total. When extraction produces no usable data or fails, the same form supports manual entry with the original PDF visible. Edits remain temporary until explicit confirmation.
+
+Phase 4 adds **Confirm & Save** after the user checks an acknowledgement beside the original PDF. The backend warns about likely duplicates and lets the user choose whether to continue. Confirmed metadata, item rows, products, categories, and applicable aliases are saved in PostgreSQL; the original PDF is copied to ignored private `runtime-data/receipts/YYYY/MM/` storage. The temporary candidate is removed after a successful save. Database/file errors keep the candidate available for retry. Receipt history, editing saved records, analytics, and export remain later phases. A machine crash in the narrow interval between file creation and database commit could leave an orphan private PDF; ordinary save errors clean it up.
 
 The repository is intended to remain private during development. No software license has been selected.
 

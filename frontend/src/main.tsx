@@ -1,7 +1,7 @@
 import { StrictMode, useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { PdfPreview } from './PdfPreview'
-import { ReviewPanel, type Review } from './ReviewPanel'
+import { ReviewPanel, type Review, type SavedReceipt } from './ReviewPanel'
 import './style.css'
 
 type HealthState = 'checking' | 'healthy' | 'unavailable'
@@ -59,6 +59,7 @@ function App() {
   const [extraction, setExtraction] = useState<ExtractionData | null>(null)
   const [extracting, setExtracting] = useState(false)
   const [extractionError, setExtractionError] = useState('')
+  const [savedReceipt, setSavedReceipt] = useState<SavedReceipt | null>(null)
   const fileInput = useRef<HTMLInputElement>(null)
   const activeCandidateId = useRef<string | null>(null)
 
@@ -122,6 +123,7 @@ function App() {
         throw new Error(result.detail ?? 'The PDF could not be accepted.')
       }
       const next: Candidate = await response.json()
+      setSavedReceipt(null)
       activeCandidateId.current = next.id
       setCandidate(next)
       setExtraction(null)
@@ -156,13 +158,22 @@ function App() {
     }
   }
 
+  function handleSaved(result: SavedReceipt) {
+    setSavedReceipt(result)
+    setCandidate(null)
+    activeCandidateId.current = null
+    setExtraction(null)
+    setSelectedFile(null)
+    if (fileInput.current) fileInput.current.value = ''
+  }
+
   return (
     <main className="shell">
       <header>
         <p className="eyebrow">Project BEKAL · V0.1 receipt review</p>
         <h1>Receipt data, under your control.</h1>
         <p className="intro">
-          Select a PDF receipt, compare its extracted details with the original, and correct a temporary candidate. Nothing is saved as a receipt yet.
+          Select a PDF receipt, compare its extracted details with the original, and correct a temporary candidate. Nothing is saved until you confirm.
         </p>
       </header>
 
@@ -183,6 +194,7 @@ function App() {
           {candidate && <button type="button" className="secondary" onClick={() => void discard()} disabled={working}>Discard preview</button>}
         </div>
         {error && <p role="alert" className="error">{error}</p>}
+        {savedReceipt && <div className="saved-result" role="status"><strong>Receipt saved privately.</strong><p>ID: <code>{savedReceipt.id}</code></p><p>{savedReceipt.store_name ?? 'Unknown store'} · {savedReceipt.receipt_date ?? 'Date unknown'} · {savedReceipt.item_count} item(s) · Total: {savedReceipt.final_total === null ? 'Unknown' : `MYR ${savedReceipt.final_total.toFixed(2)}`}</p></div>}
         {candidate && (
           <div className="candidate">
             <p><strong>Temporary receipt ID:</strong> <code>{candidate.id}</code></p>
@@ -195,7 +207,7 @@ function App() {
               <section className="extraction-panel" aria-label="Extracted candidate data" aria-live="polite">
                 {extracting && <p>Extracting receipt text…</p>}
                 {extractionError && <p role="alert" className="error">{extractionError}</p>}
-                {extraction && <ReviewPanel review={extraction.review} categories={extraction.categories} method={extraction.extraction_status === 'no_data' ? 'manual' : extraction.extraction_method} />}
+                {extraction && <ReviewPanel review={extraction.review} categories={extraction.categories} method={extraction.extraction_status === 'no_data' ? 'manual' : extraction.extraction_method} candidateId={candidate.id} onSaved={handleSaved} />}
               </section>
             </div>
           </div>
