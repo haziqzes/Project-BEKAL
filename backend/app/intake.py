@@ -5,9 +5,11 @@ from uuid import UUID
 
 from fastapi import APIRouter, File, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse
+from pytesseract import TesseractNotFoundError
 from pypdf import PdfReader
 
 from app.candidates import CandidateStore
+from app.extraction import extract_candidate
 
 router = APIRouter(prefix="/api/candidates", tags=["receipt intake"])
 MAX_PDF_BYTES = 10 * 1024 * 1024
@@ -60,6 +62,18 @@ def preview_candidate(candidate_id: UUID, request: Request) -> FileResponse:
         content_disposition_type="inline",
         headers={"X-Content-Type-Options": "nosniff", "Cache-Control": "no-store"},
     )
+
+
+@router.post("/{candidate_id}/extract")
+def extract_receipt_candidate(candidate_id: UUID, request: Request) -> dict:
+    candidate = candidate_store(request).get(candidate_id)
+    if candidate is None:
+        raise HTTPException(status_code=404, detail="Candidate not found or expired")
+    try:
+        result = extract_candidate(candidate.path)
+    except TesseractNotFoundError as exc:
+        raise HTTPException(status_code=503, detail="Local OCR is unavailable; install Tesseract") from exc
+    return {"candidate_id": str(candidate.id), **result.model_dump()}
 
 
 @router.delete("/{candidate_id}", status_code=204)

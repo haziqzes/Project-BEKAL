@@ -127,13 +127,20 @@ Verified Phase 1 behavior:
 
 ## Current Phase
 
-### Phase 2 — Receipt Extraction 🚧
+### Phase 2 — Receipt Extraction ✅ Implementation complete; owner review pending
 
-Current objective:
+Verified Phase 2 behavior:
 
-> **Convert a temporary receipt PDF candidate into structured temporary receipt metadata and line-item candidate data using embedded-text extraction first and local OCR only when necessary.**
+- embedded text is extracted from all pages and preferred when usable
+- local Tesseract OCR handles scanned PDFs when embedded text is unusable
+- temporary candidate responses contain available receipt metadata and line items
+- missing values remain null and unreadable content reports `no_data`
+- the frontend shows extraction method and candidate data beside the original PDF
+- no receipt data is written to PostgreSQL
+- synthetic text and scanned PDFs were verified in the browser
+- backend tests and frontend build pass; all Compose services are healthy
 
-Phase 2 must remain temporary and must not turn into persistence, normalization, analytics, or review/editing work.
+Current handoff: Phase 2 has reached its exit condition. Changes are uncommitted for owner review. Do not begin Phase 3 until the owner accepts or redirects the work.
 
 ---
 
@@ -658,7 +665,7 @@ If those conditions pass:
 ```text
 Phase 0  Foundation                    ✅
 Phase 1  Receipt intake / preview      ✅
-Phase 2  Receipt extraction            🚧 CURRENT
+Phase 2  Receipt extraction            ✅ review pending
 Phase 3  Review & normalization
 Phase 4  Persistence
 Phase 5  History / CRUD

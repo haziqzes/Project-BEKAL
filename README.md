@@ -1,6 +1,6 @@
 # BEKAL
 
-BEKAL is a local-first receipt intelligence project created by **Wan Mohamad Haziq Mirza**. V0.1 aims to turn receipt PDFs into reviewed, structured data for storage, simple analysis, and CSV export. The current codebase includes the **Phase 1 receipt intake** flow: PDF validation, temporary acceptance, and original PDF preview.
+BEKAL is a local-first receipt intelligence project created by **Wan Mohamad Haziq Mirza**. V0.1 aims to turn receipt PDFs into reviewed, structured data for storage, simple analysis, and CSV export. The current codebase includes **Phase 2 temporary extraction**: PDF intake and preview, embedded-text extraction, local OCR fallback, and structured candidate metadata and items.
 
 ## Quick start
 
@@ -10,7 +10,7 @@ Requires Docker Desktop with Compose.
 2. Run `docker compose up --build -d`.
 3. Run `docker compose ps` and wait until `frontend`, `backend`, and `postgres` are healthy.
 4. Run `docker compose exec backend alembic upgrade head`.
-5. Open `http://localhost:5173`. The page should show all three services as healthy and let you select a PDF for temporary preview.
+5. Open `http://localhost:5173`. Select a PDF to preview it and see temporary extracted candidate data beside the original.
 
 API checks: `http://localhost:8000/api/health` and `http://localhost:8000/api/health/db`.
 
@@ -25,6 +25,8 @@ The approved V0.1 scope is in `BEKAL_Requirements_V0.1.md` and the other `BEKAL_
 Real receipts, database files, exports, credentials, and runtime data belong outside source control. `runtime-data/` is mounted for future local receipt storage and ignored by Git. Use only synthetic fixtures in `examples/synthetic/`.
 
 Phase 1 PDFs are held in `runtime-data/candidates/` for at most one hour. They are removed when discarded, on backend restart, or after expiry. The original filename is never used as a storage path. No receipt is permanently saved or added to PostgreSQL at this stage.
+
+Phase 2 attempts selectable PDF text first and runs local Tesseract OCR only if that text is unusable. The candidate view shows the extraction method, available receipt metadata, and line items. Missing fields remain blank. Extraction results are returned to the browser only; they are not saved to PostgreSQL. The Docker backend includes Tesseract. Host-based backend development needs a local Tesseract installation for scanned PDFs.
 
 The repository is intended to remain private during development. No software license has been selected.
 
