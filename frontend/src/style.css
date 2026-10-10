@@ -12,7 +12,19 @@ body { margin: 0; }
 .eyebrow { font-size: 0.8rem; font-weight: 700; letter-spacing: 0.11em; text-transform: uppercase; color: #527c68; }
 h1 { margin: 16px 0; font-size: clamp(2rem, 5vw, 3.2rem); line-height: 1.12; }
 .intro { max-width: 650px; line-height: 1.65; color: #53645b; }
-.status-panel { margin-top: 56px; padding: 28px; border: 1px solid #dbe5da; border-radius: 12px; background: white; }
+.intake-panel, .status-panel { margin-top: 36px; padding: 28px; border: 1px solid #dbe5da; border-radius: 12px; background: white; }
 h2 { margin: 0 0 18px; font-size: 1.2rem; }
+.intake-panel label { display: block; margin-bottom: 10px; font-weight: 600; }
+.intake-panel input { display: block; max-width: 100%; }
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+button { border: 1px solid #23654c; border-radius: 7px; padding: 10px 16px; color: white; background: #23654c; font: inherit; cursor: pointer; }
+button.secondary { color: #23654c; background: white; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.error { color: #a52727; }
+.candidate { margin-top: 26px; border-top: 1px solid #e9eee8; padding-top: 15px; }
+.candidate code { overflow-wrap: anywhere; }
+.pdf-preview { margin-top: 18px; padding: 12px; border: 1px solid #dbe5da; border-radius: 5px; background: #f0f1ee; }
+.pdf-preview canvas { display: block; width: 100%; height: auto; background: white; }
+.page-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
 .status-row { display: flex; justify-content: space-between; gap: 24px; padding: 13px 0; border-top: 1px solid #eef1ec; }
 .status-row strong { text-transform: capitalize; }

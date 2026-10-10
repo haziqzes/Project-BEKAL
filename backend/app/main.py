@@ -1,10 +1,39 @@
+import asyncio
 import os
+from contextlib import asynccontextmanager, suppress
+from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 
-app = FastAPI(title="BEKAL API", version="0.1.0")
+from app.candidates import CandidateStore
+from app.intake import router as intake_router
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    store = CandidateStore(Path(os.getenv("CANDIDATE_STORAGE_DIR", "../runtime-data/candidates")))
+    store.prepare()
+    app.state.candidate_store = store
+
+    async def expire_candidates() -> None:
+        while True:
+            await asyncio.sleep(300)
+            store.cleanup_expired()
+
+    cleanup_task = asyncio.create_task(expire_candidates())
+    try:
+        yield
+    finally:
+        cleanup_task.cancel()
+        with suppress(asyncio.CancelledError):
+            await cleanup_task
+        store.clear()
+
+
+app = FastAPI(title="BEKAL API", version="0.1.0", lifespan=lifespan)
+app.include_router(intake_router)
 
 
 @app.get("/api/health")
