@@ -1,0 +1,29 @@
+# BEKAL
+
+BEKAL is a local-first receipt intelligence project created by **Wan Mohamad Haziq Mirza**. V0.1 aims to turn receipt PDFs into reviewed, structured data for storage, simple analysis, and CSV export. The current codebase is the **Phase 0 foundation**; receipt functionality is not implemented yet.
+
+## Quick start
+
+Requires Docker Desktop with Compose.
+
+1. Copy `.env.example` to `.env` and set a local PostgreSQL password.
+2. Run `docker compose up --build -d`.
+3. Run `docker compose ps` and wait until `frontend`, `backend`, and `postgres` are healthy.
+4. Run `docker compose exec backend alembic upgrade head`.
+5. Open `http://localhost:5173`. The page should show all three services as healthy.
+
+API checks: `http://localhost:8000/api/health` and `http://localhost:8000/api/health/db`.
+
+Run smoke tests with `docker compose exec backend python -m pytest`, or from a host Python environment with `python -m pip install -e '.[dev]'` in `backend/`. Run the frontend build with `npm ci` followed by `npm run build` in `frontend/`.
+
+Stop services with `docker compose down`. PostgreSQL data persists in its named volume. `docker compose down --volumes` removes that database volume.
+
+## Scope and privacy
+
+The approved V0.1 scope is in `BEKAL_Requirements_V0.1.md` and the other `BEKAL_*` design documents. Recipes, pantry tracking, budgeting, authentication, mobile apps, and cloud services are outside V0.1.
+
+Real receipts, database files, exports, credentials, and runtime data belong outside source control. `runtime-data/` is mounted for future local receipt storage and ignored by Git. Use only synthetic fixtures in `examples/synthetic/`.
+
+The repository is intended to remain private during development. No software license has been selected.
+
+See [architecture](docs/architecture.md) and [development notes](docs/development.md) for details.
