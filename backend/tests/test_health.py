@@ -17,3 +17,25 @@ def test_database_health_requires_configuration(monkeypatch) -> None:
     response = client.get("/api/health/db")
     assert response.status_code == 503
     assert response.json() == {"detail": "Database is not configured"}
+
+def test_tauri_desktop_origin_is_allowed() -> None:
+    response = client.options(
+        "/api/health",
+        headers={
+            "Origin": "http://tauri.localhost",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://tauri.localhost"
+
+
+def test_untrusted_origin_is_not_allowed() -> None:
+    response = client.options(
+        "/api/health",
+        headers={
+            "Origin": "https://example.invalid",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+    assert "access-control-allow-origin" not in response.headers

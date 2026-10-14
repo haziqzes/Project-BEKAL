@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { apiUrl } from './api'
 
 type PricePoint = { receipt_id: string; receipt_date: string; store_name: string | null; unit_price: number }
 type Dashboard = {
@@ -27,7 +28,7 @@ export function DashboardPanel({ onOpenReceipt }: { onOpenReceipt: (id: string) 
     const controller = new AbortController()
     setLoading(true)
     setError('')
-    fetch(`/api/dashboard?month=${encodeURIComponent(month)}`, { signal: controller.signal })
+    fetch(apiUrl(`/api/dashboard?month=${encodeURIComponent(month)}`), { signal: controller.signal })
       .then(async response => {
         if (!response.ok) throw new Error('Could not load the monthly dashboard.')
         return await response.json() as Dashboard

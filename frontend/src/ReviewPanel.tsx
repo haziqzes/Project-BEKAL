@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { apiUrl } from './api'
 
 export type Receipt = {
   store_name: string | null; receipt_date: string | null; receipt_number: string | null
@@ -114,7 +115,7 @@ export function ReviewPanel({ review, categories, method, candidateId, onSaved }
     setSaving(true)
     setSaveError('')
     try {
-      const response = await fetch(`/api/candidates/${candidateId}/confirm`, {
+      const response = await fetch(apiUrl(`/api/candidates/${candidateId}/confirm`), {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ receipt, items: rows.map(row => ({
           raw_name: row.raw_name || null, display_name: row.display_name, quantity: row.quantity,

@@ -4,6 +4,7 @@ import { PdfPreview } from './PdfPreview'
 import { ReviewPanel, type Review, type SavedReceipt } from './ReviewPanel'
 import { HistoryPanel } from './HistoryPanel'
 import { DashboardPanel } from './DashboardPanel'
+import { apiUrl } from './api'
 import './style.css'
 
 type HealthState = 'checking' | 'healthy' | 'unavailable'
@@ -72,7 +73,7 @@ function App() {
 
     async function check(path: string, update: (state: HealthState) => void) {
       try {
-        const response = await fetch(path, { signal: controller.signal })
+        const response = await fetch(apiUrl(path), { signal: controller.signal })
         update(response.ok ? 'healthy' : 'unavailable')
       } catch (error) {
         if (!controller.signal.aborted) {
@@ -91,7 +92,7 @@ function App() {
     setExtractionError('')
     setExtraction(null)
     try {
-      const response = await fetch(`/api/candidates/${candidateId}/extract`, { method: 'POST' })
+      const response = await fetch(apiUrl(`/api/candidates/${candidateId}/extract`), { method: 'POST' })
       if (!response.ok) throw new Error(response.status === 404 ? 'The temporary candidate expired. Upload the PDF again.' : 'Extraction failed. Enter the receipt details manually while checking the original PDF.')
       const result: ExtractionData = await response.json()
       if (activeCandidateId.current === candidateId) setExtraction(result)
@@ -121,7 +122,7 @@ function App() {
     try {
       const body = new FormData()
       body.append('file', selectedFile)
-      const response = await fetch('/api/candidates', { method: 'POST', body })
+      const response = await fetch(apiUrl('/api/candidates'), { method: 'POST', body })
       if (!response.ok) {
         const result: { detail?: string } = await response.json()
         throw new Error(result.detail ?? 'The PDF could not be accepted.')
@@ -133,7 +134,7 @@ function App() {
       setExtraction(null)
       void extract(next.id)
       if (candidate) {
-        void fetch(`/api/candidates/${candidate.id}`, { method: 'DELETE' }).catch(() => {})
+        void fetch(apiUrl(`/api/candidates/${candidate.id}`), { method: 'DELETE' }).catch(() => {})
       }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'The PDF could not be accepted.')
@@ -146,7 +147,7 @@ function App() {
     if (!candidate) return
     setWorking(true)
     try {
-      await fetch(`/api/candidates/${candidate.id}`, { method: 'DELETE' })
+      await fetch(apiUrl(`/api/candidates/${candidate.id}`), { method: 'DELETE' })
       setCandidate(null)
       activeCandidateId.current = null
       setExtraction(null)
@@ -211,7 +212,7 @@ function App() {
               {extracting ? 'Extracting…' : 'Extract again'}
             </button>
             <div className="candidate-content">
-              <PdfPreview url={candidate.preview_url} />
+              <PdfPreview url={apiUrl(candidate.preview_url)} />
               <section className="extraction-panel" aria-label="Extracted candidate data" aria-live="polite">
                 {extracting && <p>Extracting receipt text…</p>}
                 {extractionError && <p role="alert" className="error">{extractionError}</p>}

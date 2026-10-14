@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { PdfPreview } from './PdfPreview'
+import { apiUrl } from './api'
 import type { Item, Receipt } from './ReviewPanel'
 
 type Summary = { id: string; receipt_date: string | null; store_name: string | null; item_count: number; final_total: number | null; currency: 'MYR'; created_at: string }
@@ -27,7 +28,7 @@ export function HistoryPanel({ openReceiptId }: { openReceiptId?: string | null 
 
   async function loadHistory() {
     try {
-      const response = await fetch('/api/receipts')
+      const response = await fetch(apiUrl('/api/receipts'))
       if (!response.ok) throw new Error('Could not load receipt history.')
       setHistory(await response.json() as Summary[])
       setError('')
@@ -39,7 +40,7 @@ export function HistoryPanel({ openReceiptId }: { openReceiptId?: string | null 
   async function open(id: string, edit = false) {
     setBusy(true); setError(''); setNotice('')
     try {
-      const response = await fetch(`/api/receipts/${id}`)
+      const response = await fetch(apiUrl(`/api/receipts/${id}`))
       if (!response.ok) throw new Error('Could not load this receipt.')
       const result = await response.json() as Detail
       setSelected(result); setReceipt(result.receipt)
@@ -77,7 +78,7 @@ export function HistoryPanel({ openReceiptId }: { openReceiptId?: string | null 
     if (!selected || !receipt || editingRow) return
     setBusy(true); setError(''); setNotice('')
     try {
-      const response = await fetch(`/api/receipts/${selected.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' },
+      const response = await fetch(apiUrl(`/api/receipts/${selected.id}`), { method: 'PUT', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ receipt, items: rows.map(row => ({ id: row.id ?? null, raw_name: row.raw_name || null, display_name: row.display_name, quantity: row.quantity,
           unit: row.unit, unit_price: row.unit_price, line_total: row.line_total, category: row.category, review_flag: row.review_flag })) }) })
       const result = await response.json()
@@ -90,7 +91,7 @@ export function HistoryPanel({ openReceiptId }: { openReceiptId?: string | null 
   async function remove(id: string) {
     setBusy(true); setError(''); setNotice('')
     try {
-      const response = await fetch(`/api/receipts/${id}`, { method: 'DELETE' })
+      const response = await fetch(apiUrl(`/api/receipts/${id}`), { method: 'DELETE' })
       const result = await response.json()
       if (!response.ok) throw new Error(errorText(result.detail, 'Could not delete the receipt.'))
       setSelected(null); setReceipt(null); setEditingReceipt(false); setDeleteId(null)
@@ -105,7 +106,7 @@ export function HistoryPanel({ openReceiptId }: { openReceiptId?: string | null 
 
   return <section className="intake-panel" aria-label="Receipt History">
     <div className="section-heading"><h2>Receipt History</h2><button type="button" className="secondary" onClick={() => void loadHistory()}>Refresh</button></div>
-    <div className="actions export-actions"><a className="download-link" href="/api/exports/receipts.csv" download="receipts.csv">Download receipts.csv</a><a className="download-link" href="/api/exports/items.csv" download="items.csv">Download items.csv</a></div>
+    <div className="actions export-actions"><a className="download-link" href={apiUrl('/api/exports/receipts.csv')} download="receipts.csv">Download receipts.csv</a><a className="download-link" href={apiUrl('/api/exports/items.csv')} download="items.csv">Download items.csv</a></div>
     <p className="review-note">CSV downloads contain your saved receipt data. Keep them in private storage.</p>
     {notice && <p role="status" className="ready-state">{notice}</p>}{error && <p role="alert" className="error">{error}</p>}
     {!history.length ? <p>No saved receipts yet.</p> : <div className="table-scroll"><table><thead><tr><th>Date</th><th>Store</th><th>Items</th><th>Total</th><th>Actions</th></tr></thead><tbody>{history.map(row => <tr key={row.id}>
@@ -116,7 +117,7 @@ export function HistoryPanel({ openReceiptId }: { openReceiptId?: string | null 
     {selected && receipt && <div className="candidate">
       <div className="section-heading"><h3>Saved receipt</h3><div className="actions"><button type="button" className="secondary" onClick={() => { setSelected(null); setEditingReceipt(false) }}>Back to history</button>{!editingReceipt && <button type="button" onClick={() => setEditingReceipt(true)}>Edit receipt</button>}</div></div>
       <p className="review-note">Compare saved details with the original PDF. Changes remain in this form until you select Save changes.</p>
-      <div className="candidate-content"><PdfPreview url={selected.pdf_url} /><section className="extraction-panel" aria-label="Saved receipt details"><h4>Receipt details</h4><div className="field-grid">{textField('Store', 'store_name')}{textField('Date', 'receipt_date', 'date')}{textField('Receipt number', 'receipt_number')}{textField('Payment method', 'payment_method')}{amountField('Subtotal (MYR)', 'subtotal')}{amountField('Discount (MYR)', 'discount_total')}{amountField('Tax (MYR)', 'tax_total')}{amountField('Receipt total (MYR)', 'final_total')}</div>
+      <div className="candidate-content"><PdfPreview url={apiUrl(selected.pdf_url)} /><section className="extraction-panel" aria-label="Saved receipt details"><h4>Receipt details</h4><div className="field-grid">{textField('Store', 'store_name')}{textField('Date', 'receipt_date', 'date')}{textField('Receipt number', 'receipt_number')}{textField('Payment method', 'payment_method')}{amountField('Subtotal (MYR)', 'subtotal')}{amountField('Discount (MYR)', 'discount_total')}{amountField('Tax (MYR)', 'tax_total')}{amountField('Receipt total (MYR)', 'final_total')}</div>
         <div className="section-heading"><h4>Items</h4>{editingReceipt && <button type="button" className="secondary" disabled={editingRow !== null} onClick={() => { const row = blank(); setRows(current => [...current, row]); beginRow(row) }}>Add missing item</button>}</div>
         <div className="table-scroll"><table><thead><tr><th>Review</th><th>Product</th><th>Category</th><th>Qty</th><th>Unit</th><th>Unit price</th><th>Line total</th>{editingReceipt && <th>Actions</th>}</tr></thead><tbody>{rows.map(row => <tr key={row.key}><td>{row.review_flag ? '⚠' : '✓'}</td><td>{row.display_name || 'New item'}{row.raw_name && row.raw_name !== row.display_name && <small className="raw-name">Source: {row.raw_name}</small>}</td><td>{row.category}</td><td>{row.quantity ?? '—'}</td><td>{row.unit ?? '—'}</td><td>{money(row.unit_price)}</td><td>{money(row.line_total)}</td>{editingReceipt && <td className="row-actions"><button type="button" className="icon-button" aria-label={`Edit ${row.display_name || 'new item'}`} disabled={editingRow !== null} onClick={() => beginRow(row)}>✎</button><button type="button" className="delete-button" aria-label={`Delete ${row.display_name || 'new item'}`} onClick={() => { setRows(current => current.filter(item => item.key !== row.key)); if (editingRow === row.key) setEditingRow(null) }}>Delete</button></td>}</tr>)}</tbody></table></div>
         {editingRow && <div className="row-editor" aria-label="Edit saved item row"><h5>Edit item</h5>{draft.raw_name && <p>Original item text: {draft.raw_name}</p>}<div className="field-grid"><label className="field">Product name<input aria-label="Product name" value={draft.display_name} onChange={event => setDraft(current => ({ ...current, display_name: event.target.value }))} /></label><label className="field">Category<select aria-label="Category" value={draft.category} onChange={event => setDraft(current => ({ ...current, category: event.target.value }))}>{categories.map(category => <option key={category}>{category}</option>)}</select></label>{rowNumber('Quantity', 'quantity')}<label className="field">Unit<input aria-label="Unit" value={draft.unit ?? ''} onChange={event => setDraft(current => ({ ...current, unit: event.target.value || null }))} /></label>{rowNumber('Unit price (MYR)', 'unit_price')}{rowNumber('Line total (MYR)', 'line_total')}<label className="field">Review state<select aria-label="Review state" value={draft.review_flag ? 'review' : 'checked'} onChange={event => setDraft(current => ({ ...current, review_flag: event.target.value === 'review' }))}><option value="review">Review recommended</option><option value="checked">Checked against PDF</option></select></label></div><div className="actions"><button type="button" onClick={saveRow}>Save row</button><button type="button" className="secondary" onClick={() => { if (!draft.id) setRows(current => current.filter(row => row.key !== draft.key)); setEditingRow(null); setError('') }}>Cancel</button></div></div>}
