@@ -5,7 +5,7 @@
 > **Owner / Creator:** Wan Mohamad Haziq Mirza  
 > **Canonical local workspace:** `C:\Projects\Project-BEKAL`  
 > **Repository:** `haziqzes/Project-BEKAL`  
-> **Repository status:** Private during development  
+> **Repository status:** MIT-licensed V0.1; public release authorized
 > **Current target:** BEKAL V0.1  
 > **Last updated:** 2026-10-14
 
@@ -213,9 +213,9 @@ Added a synthetic upload → extract → correct → save → view → CSV regre
 
 The frozen 13-step acceptance path has a synthetic end-to-end check through extraction, correction, save, history, dashboard, saved edit, both CSV exports, and PDF deletion. UI review, local Compose health, tests, build, audits, migrations, and Git privacy were checked. The repeatable release candidate verification and remaining limits are documented in `docs/release-candidate.md`.
 
-### Phase 10 — Public-Release Preparation 🚧 Owner decisions pending
+### Phase 10 — Public-Release Preparation ✅
 
-Reversible preparation is complete: tracked-path and recognizable-secret history checks, staged-file hook, privacy/test/build CI, synthetic demo receipt, documentation, creator credit, ignore rules, and loopback-bound Compose review. The repository remains private. The owner must choose a license and explicitly approve any visibility change before public release. See `docs/public-release-preparation.md`.
+Reversible preparation is complete: tracked-path and recognizable-secret history checks, staged-file hook, privacy/test/build/dependency-audit CI, synthetic demo receipt, documentation, creator credit, ignore rules, and loopback-bound Compose review. The owner selected the MIT License and authorized public release after the final privacy, dependency, runtime, and CI gates pass. See `docs/public-release-preparation.md`.
 
 ---
 
@@ -541,7 +541,7 @@ CI validation
 human review
 ```
 
-The repository remains private until the owner explicitly approves publication.
+The owner has approved public release after the final privacy, dependency, runtime, and CI gates pass.
 
 ---
 
@@ -606,9 +606,7 @@ docs: update Phase 2 extraction architecture
 
 Do not rewrite substantial user-authored Git history unless explicitly instructed.
 
-Do not change repository visibility.
-
-Do not add a software license until the owner chooses one.
+The owner selected the MIT License for BEKAL V0.1. The one-time transition of `haziqzes/Project-BEKAL` from private to public is authorized after the final release gates pass. Future software-license or repository-visibility changes require explicit owner approval.
 
 Do not push secrets/private user data.
 
@@ -678,7 +676,7 @@ Ask the owner when a decision materially changes:
 - major frameworks/dependencies
 - reliance on required paid/external infrastructure
 
-Do not choose a software license or make the repository public without explicit owner approval. Public-release preparation may proceed up to those decision boundaries.
+The owner selected the MIT License and authorized the BEKAL V0.1 public release after the final gates. Future software-license or repository-visibility changes require explicit owner approval.
 
 ---
 
@@ -757,16 +755,20 @@ Phase 6  Dashboard                     ✅
 Phase 7  CSV export                    ✅
 Phase 8  Testing / stabilization       ✅
 Phase 9  V0.1 release candidate        ✅
-Phase 10 Public-release preparation  🚧 owner decisions
+Phase 10 Public-release preparation    ✅
 ```
 
 No phase should silently consume the next phase's scope.
 
 ---
 
-# 19. Current Mission — Phase 10 Owner Decisions
+# 19. Current Mission — V0.1 Public Release Gate
 
-Phase 10 reversible public-release preparation is complete. Stop at the owner-level decisions on software licensing and repository visibility. Do not make the repository public or add a license without explicit owner approval. Re-run privacy, dependency, and CI gates before a later public release.
+BEKAL V0.1 implementation and reversible public-release preparation are complete. The owner selected the MIT License and authorized the repository to become public after the final release gates pass.
+
+For this release, verify the exact release commit with Git-history privacy scanning, backend tests and dependency audit, frontend build and dependency audit, local Docker health, loopback-bound service exposure, and successful GitHub CI. If every gate passes, the approved final action is to change `haziqzes/Project-BEKAL` from private to public.
+
+After that visibility transition, BEKAL V0.1 is complete. Future scope, licensing, architecture, or visibility changes again require normal owner review.
 
 ---
 
@@ -802,7 +804,7 @@ For each already-approved V0.1 milestone:
 
 Stop and ask the owner only if a decision would materially alter V0.1 scope/finish line, privacy/security behavior, irreversible persistent-data semantics, accepted architecture, software licensing, repository visibility/public release, destructive real-data behavior, major framework/dependency choice, or introduce required paid/external infrastructure.
 
-Do not choose a software license or make the repository public without explicit owner approval.
+The owner selected the MIT License and authorized the BEKAL V0.1 public visibility transition after the final release gates. Future license or visibility changes require explicit owner approval.
 ```
 
 ## Owner-run Windows PowerShell convention
