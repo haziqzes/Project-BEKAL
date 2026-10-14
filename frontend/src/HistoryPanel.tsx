@@ -12,7 +12,7 @@ const money = (value: number | null) => value === null ? '—' : `MYR ${value.to
 const numberValue = (text: string) => text.trim() ? Number(text) : null
 const errorText = (detail: unknown, fallback: string) => typeof detail === 'string' ? detail : fallback
 
-export function HistoryPanel() {
+export function HistoryPanel({ openReceiptId }: { openReceiptId?: string | null }) {
   const [history, setHistory] = useState<Summary[]>([])
   const [selected, setSelected] = useState<Detail | null>(null)
   const [receipt, setReceipt] = useState<Receipt | null>(null)
@@ -34,6 +34,7 @@ export function HistoryPanel() {
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not load receipt history.') }
   }
   useEffect(() => { void loadHistory() }, [])
+  useEffect(() => { if (openReceiptId) void open(openReceiptId) }, [openReceiptId])
 
   async function open(id: string, edit = false) {
     setBusy(true); setError(''); setNotice('')

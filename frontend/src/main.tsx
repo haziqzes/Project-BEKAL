@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { PdfPreview } from './PdfPreview'
 import { ReviewPanel, type Review, type SavedReceipt } from './ReviewPanel'
 import { HistoryPanel } from './HistoryPanel'
+import { DashboardPanel } from './DashboardPanel'
 import './style.css'
 
 type HealthState = 'checking' | 'healthy' | 'unavailable'
@@ -51,7 +52,8 @@ function manualExtraction(candidateId: string): ExtractionData {
 }
 
 function App() {
-  const [view, setView] = useState<'intake' | 'history'>('intake')
+  const [view, setView] = useState<'intake' | 'history' | 'dashboard'>('intake')
+  const [historyTarget, setHistoryTarget] = useState<string | null>(null)
   const [backend, setBackend] = useState<HealthState>('checking')
   const [postgres, setPostgres] = useState<HealthState>('checking')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -175,13 +177,13 @@ function App() {
         <p className="eyebrow">Project BEKAL · V0.1 receipt review</p>
         <h1>Receipt data, under your control.</h1>
         <p className="intro">
-          {view === 'intake' ? 'Select a PDF receipt, compare its extracted details with the original, and correct a temporary candidate. Nothing is saved until you confirm.' : 'Review saved receipts, compare their details with the original PDFs, and explicitly save changes or confirm deletion.'}
+          {view === 'intake' ? 'Select a PDF receipt, compare its extracted details with the original, and correct a temporary candidate. Nothing is saved until you confirm.' : view === 'history' ? 'Review saved receipts, compare their details with the original PDFs, and explicitly save changes or confirm deletion.' : 'See a simple monthly overview of permanently saved receipts.'}
         </p>
       </header>
 
-      <nav className="main-nav" aria-label="Main navigation"><button type="button" className={view === 'intake' ? '' : 'secondary'} onClick={() => setView('intake')}>Receipt intake</button><button type="button" className={view === 'history' ? '' : 'secondary'} onClick={() => setView('history')}>Receipt History</button></nav>
+      <nav className="main-nav" aria-label="Main navigation"><button type="button" className={view === 'intake' ? '' : 'secondary'} onClick={() => setView('intake')}>Receipt intake</button><button type="button" className={view === 'history' ? '' : 'secondary'} onClick={() => { setHistoryTarget(null); setView('history') }}>Receipt History</button><button type="button" className={view === 'dashboard' ? '' : 'secondary'} onClick={() => setView('dashboard')}>Dashboard</button></nav>
 
-      {view === 'history' ? <HistoryPanel /> : <>
+      {view === 'dashboard' ? <DashboardPanel onOpenReceipt={id => { setHistoryTarget(id); setView('history') }} /> : view === 'history' ? <HistoryPanel openReceiptId={historyTarget} /> : <>
 
       <section aria-labelledby="intake-heading" className="intake-panel">
         <h2 id="intake-heading">Select a receipt PDF</h2>

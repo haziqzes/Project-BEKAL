@@ -187,11 +187,23 @@ Verified Phase 5 behavior:
 - a synthetic browser edit/reload/delete workflow was verified against PostgreSQL and private storage
 - runtime PDFs, database data, `.env`, and other private data remained ignored by Git
 
+### Phase 6 — Dashboard ✅
+
+Implementation complete and verified in the Phase 6 dashboard commit that includes this handoff.
+
+- read-only calendar-month API over permanently saved MYR receipts only
+- known final-total spending with explicit missing-total count; receipt count and recent receipts
+- top categories from known item line totals and most-purchased products from item-row occurrences
+- conservative comparable unit prices using checked rows with positive quantity, same product/unit, and distinct receipts
+- simple month selector and dashboard tables; recent receipt links reuse Phase 5 detail view
+- empty and partial months handled without fabricating totals
+- 33 backend tests pass, frontend build passes, synthetic browser checks pass
+
 ## Current Phase
 
-### Phase 6 — Dashboard 🚧 Authorized / next implementation milestone
+### Phase 7 — CSV Export 🚧 Authorized / next implementation milestone
 
-Phase 6 should provide the approved monthly dashboard only: selected calendar month, total spending, receipt count, top categories, most frequently purchased products, conservative recent price history, and recent receipts. It must use permanently saved receipt data only and must not consume Phase 7 export scope.
+Implement only the approved `receipts.csv` and `items.csv` downloads from saved data. Keep exported data private and outside Git.
 
 ---
 
@@ -729,8 +741,8 @@ Phase 2  Receipt extraction            ✅
 Phase 3  Review & normalization        ✅
 Phase 4  Persistence                   ✅
 Phase 5  History / CRUD                ✅
-Phase 6  Dashboard                     🚧 current
-Phase 7  CSV export
+Phase 6  Dashboard                     ✅
+Phase 7  CSV export                    🚧 next
 Phase 8  Testing / stabilization
 Phase 9  V0.1 release candidate
 Phase 10 Public-release preparation
@@ -740,26 +752,11 @@ No phase should silently consume the next phase's scope.
 
 ---
 
-# 19. Current Mission — Phase 6 Dashboard
+# 19. Current Mission — Phase 7 CSV Export
 
-Phase 5 is accepted and pushed as `dd5e91c`. Phase 6 is the next approved implementation milestone.
+Phase 6 dashboard implementation has met its exit condition. Implement Phase 7 under the standing V0.1 authorization.
 
-Phase 6 objective: turn permanently saved receipt data into a simple monthly overview containing total spending, receipt count, top spending categories, most frequently purchased products, conservative recent comparable price history, and recent receipts, with a simple calendar-month selector.
-
-Preserve these Phase 6 boundaries:
-
-- use only permanently persisted receipt data;
-- current month by default with a simple month selector;
-- MYR only;
-- handle missing/partial values without fabrication;
-- keep the UI simple and low-clutter;
-- reuse existing Phase 5 receipt-detail navigation where practical;
-- do not implement CSV/XLSX export, budgets, predictions, price crawling, advanced date ranges, authentication, recipes, pantry, notifications, HANA integration, or other Phase 7+ functionality;
-- preserve the documented narrow filesystem/database crash-consistency limitations for Phase 8 stabilization unless a tiny, clearly safe fix occurs naturally.
-
-Phase 6 exit condition: a user can select a calendar month and see correct persisted monthly spending, receipt count, top categories, most-purchased products, recent comparable price history, and recent receipts; edits/deletions must be reflected, empty/partial months must remain safe, tests/build/audits/Compose checks must pass, and private/runtime data must remain outside Git.
-
-When Phase 6 passes its exit condition, update this file, commit/push the phase, verify the pushed commit and clean state, then continue to Phase 7 under the standing V0.1 authorization unless a material owner decision appears.
+Phase 7 objective: export permanently saved receipts as two UTF-8 CSV files, `receipts.csv` and `items.csv`, with clear MYR numeric fields suitable for Excel. Keep exports on demand and outside Git. Do not add XLSX, dashboard expansion, filtering infrastructure, cloud services, or later-phase features. Verify empty data, nullable fields, CSV safety, saved edits/deletes, tests, build, audits, Compose health, and Git privacy before committing and pushing Phase 7. Continue to Phase 8 after its exit condition under the approved roadmap.
 
 ---
 

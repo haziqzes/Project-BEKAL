@@ -1,6 +1,6 @@
 # BEKAL
 
-BEKAL is a local-first receipt intelligence project created by **Wan Mohamad Haziq Mirza**. V0.1 aims to turn receipt PDFs into reviewed, structured data for storage, simple analysis, and CSV export. The current codebase includes **Phase 4 confirmed local persistence**: PDF intake, extraction, review, explicit confirmation, PostgreSQL receipt data, and private original-PDF storage.
+BEKAL is a local-first receipt intelligence project created by **Wan Mohamad Haziq Mirza**. V0.1 aims to turn receipt PDFs into reviewed, structured data for storage, simple analysis, and CSV export. The current codebase includes receipt intake, extraction, review, confirmed local persistence, saved-receipt history and editing, and a monthly dashboard.
 
 ## Quick start
 
@@ -10,7 +10,7 @@ Requires Docker Desktop with Compose.
 2. Run `docker compose up --build -d`.
 3. Run `docker compose ps` and wait until `frontend`, `backend`, and `postgres` are healthy.
 4. Run `docker compose exec backend alembic upgrade head`.
-5. Open `http://localhost:5173`. Select a PDF, review and correct the candidate beside the original, then explicitly confirm to save.
+5. Open `http://localhost:5173`. Select a PDF, review and correct the candidate beside the original, then explicitly confirm to save. Use **Receipt History** to view/edit/delete saved receipts and **Dashboard** for the selected month's overview.
 
 API checks: `http://localhost:8000/api/health` and `http://localhost:8000/api/health/db`.
 
@@ -30,7 +30,9 @@ Phase 2 attempts selectable PDF text first and runs local Tesseract OCR only if 
 
 Phase 3 prepares conservative product names, initial categories, quantity/unit guesses only when supported, and review warnings. In the browser, edit receipt fields and item rows, add or delete rows, and compare item totals with the subtotal or receipt total. When extraction produces no usable data or fails, the same form supports manual entry with the original PDF visible. Edits remain temporary until explicit confirmation.
 
-Phase 4 adds **Confirm & Save** after the user checks an acknowledgement beside the original PDF. The backend warns about likely duplicates and lets the user choose whether to continue. Confirmed metadata, item rows, products, categories, and applicable aliases are saved in PostgreSQL; the original PDF is copied to ignored private `runtime-data/receipts/YYYY/MM/` storage. The temporary candidate is removed after a successful save. Database/file errors keep the candidate available for retry. Receipt history, editing saved records, analytics, and export remain later phases. A machine crash in the narrow interval between file creation and database commit could leave an orphan private PDF; ordinary save errors clean it up.
+Phase 4 adds **Confirm & Save** after the user checks an acknowledgement beside the original PDF. The backend warns about likely duplicates and lets the user choose whether to continue. Confirmed metadata, item rows, products, categories, and applicable aliases are saved in PostgreSQL; the original PDF is copied to ignored private `runtime-data/receipts/YYYY/MM/` storage. The temporary candidate is removed after a successful save. Database/file errors keep the candidate available for retry. A machine crash in the narrow interval between file creation and database commit could leave an orphan private PDF; ordinary save errors clean it up.
+
+Phase 5 adds a saved-receipt history table, private original-PDF viewing, explicit metadata and item edits, and confirmed deletion of a saved receipt and its PDF. Phase 6 adds a read-only calendar-month dashboard based only on saved receipts. It shows known spending, receipt count, category item spending, product purchase occurrences, comparable unit prices, and recent receipts. Missing totals remain marked as incomplete. CSV export is a later phase.
 
 The repository is intended to remain private during development. No software license has been selected.
 
