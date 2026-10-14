@@ -95,16 +95,19 @@ fn resolve_runtime_root(app: &tauri::AppHandle) -> Result<PathBuf, String> {
         );
     }
 
-    if let Ok(current_dir) = env::current_dir() {
-        if let Some(root) = search_development_ancestors(&current_dir) {
-            return Ok(root);
-        }
-    }
-
-    if let Ok(executable) = env::current_exe() {
-        if let Some(parent) = executable.parent() {
-            if let Some(root) = search_development_ancestors(parent) {
+    #[cfg(debug_assertions)]
+    {
+        if let Ok(current_dir) = env::current_dir() {
+            if let Some(root) = search_development_ancestors(&current_dir) {
                 return Ok(root);
+            }
+        }
+
+        if let Ok(executable) = env::current_exe() {
+            if let Some(parent) = executable.parent() {
+                if let Some(root) = search_development_ancestors(parent) {
+                    return Ok(root);
+                }
             }
         }
     }
