@@ -1,6 +1,6 @@
-# Public-release preparation (repository remains private)
+# Public-release preparation
 
-BEKAL V0.1 has a local release candidate. This checklist records reversible preparation only; publication and licensing require the owner's decision.
+BEKAL V0.1 has a local release candidate and has completed reversible public-release preparation. The owner approved the MIT License and approved public release after final safety/CI verification.
 
 ## Completed checks
 
@@ -10,12 +10,21 @@ BEKAL V0.1 has a local release candidate. This checklist records reversible prep
 - Added a staged-file safety check, an optional local pre-commit hook, and read-only CI jobs for privacy, backend tests, and frontend build/audit.
 - Added a wholly fabricated demo receipt PDF and reproducible generator under `examples/synthetic/`. Its extracted text was inspected before tracking.
 - Confirmed creator credit in `README.md`. Runtime data and exported CSVs remain private and ignored.
+- Owner selected the MIT License. `LICENSE` contains the approved text and creator copyright.
+- Owner approved changing repository visibility to public after the final release gates pass.
 
-## Remaining owner decisions and release gates
+## Final release gates
 
-- Owner chooses the software license and approves the exact license text before it is added.
-- Owner explicitly approves any repository visibility change. The repository stays private until then.
-- If screenshots or a demo video are prepared later, inspect every frame for private data before sharing.
-- Re-run the history and dependency scans immediately before any public visibility change, and inspect CI results for the final commit.
+Before changing repository visibility:
+
+- Re-run the full Git-history safety scan against the exact release commit.
+- Re-run backend tests and dependency audit.
+- Re-run frontend build and dependency audit.
+- Confirm Docker Compose services remain healthy and loopback-bound.
+- Inspect the final GitHub Actions/CI results for the release commit.
+- Confirm no real receipt, runtime data, export, database content, `.env`, secret, credential, or private log is tracked.
+- If screenshots or a demo video are prepared, inspect every frame for private data before sharing.
+
+After all gates pass, the approved next action is to make `haziqzes/Project-BEKAL` public. Do not weaken any privacy, test, or dependency gate to reach publication.
 
 To enable the local hook in this checkout, run `git config core.hooksPath .githooks`. The hook checks staged content. CI checks the full reachable Git history on every push and pull request. The hook and CI are defense in depth; human review is still required.
