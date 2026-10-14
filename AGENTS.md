@@ -213,9 +213,9 @@ Added a synthetic upload → extract → correct → save → view → CSV regre
 
 The frozen 13-step acceptance path has a synthetic end-to-end check through extraction, correction, save, history, dashboard, saved edit, both CSV exports, and PDF deletion. UI review, local Compose health, tests, build, audits, migrations, and Git privacy were checked. The repeatable release candidate verification and remaining limits are documented in `docs/release-candidate.md`.
 
-### Phase 10 — Public-Release Preparation 🚧 Authorized / next implementation milestone
+### Phase 10 — Public-Release Preparation 🚧 Owner decisions pending
 
-Review source and history privacy, safety checks, documentation, creator credit, and synthetic demo readiness. Do not select a software license or change repository visibility without owner approval.
+Reversible preparation is complete: tracked-path and recognizable-secret history checks, staged-file hook, privacy/test/build CI, synthetic demo receipt, documentation, creator credit, ignore rules, and loopback-bound Compose review. The repository remains private. The owner must choose a license and explicitly approve any visibility change before public release. See `docs/public-release-preparation.md`.
 
 ---
 
@@ -757,16 +757,16 @@ Phase 6  Dashboard                     ✅
 Phase 7  CSV export                    ✅
 Phase 8  Testing / stabilization       ✅
 Phase 9  V0.1 release candidate        ✅
-Phase 10 Public-release preparation  🚧 next
+Phase 10 Public-release preparation  🚧 owner decisions
 ```
 
 No phase should silently consume the next phase's scope.
 
 ---
 
-# 19. Current Mission — Phase 10 Public-Release Preparation
+# 19. Current Mission — Phase 10 Owner Decisions
 
-Phase 9 V0.1 release candidate has met its exit condition. Prepare the private repository for a possible public release: review tracked files and commit history for private data or secrets, check ignore and pre-commit/CI defenses, documentation, creator credit, and a safe synthetic demo path. Do not add product features. Do not choose a software license or change repository visibility without the owner's explicit decision. Complete reversible preparation, then stop at those owner-level decisions.
+Phase 10 reversible public-release preparation is complete. Stop at the owner-level decisions on software licensing and repository visibility. Do not make the repository public or add a license without explicit owner approval. Re-run privacy, dependency, and CI gates before a later public release.
 
 ---
 
