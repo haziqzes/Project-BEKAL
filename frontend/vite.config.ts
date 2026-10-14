@@ -4,7 +4,10 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: '0.0.0.0',
+    watch: {
+      ignored: ['**/src-tauri/**'],
+    },
+    host: process.env.API_PROXY_TARGET ? '0.0.0.0' : '127.0.0.1',
     port: 5173,
     strictPort: true,
     proxy: {

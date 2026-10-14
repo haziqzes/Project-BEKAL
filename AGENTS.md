@@ -6,7 +6,7 @@
 > **Canonical local workspace:** `C:\Projects\Project-BEKAL`  
 > **Repository:** `haziqzes/Project-BEKAL`  
 > **Repository status:** Public — MIT-licensed V0.1
-> **Current target:** BEKAL V0.1  
+> **Current target:** BEKAL V0.2 — Desktop Shell
 > **Last updated:** 2026-10-14
 
 ---
@@ -762,11 +762,15 @@ No phase should silently consume the next phase's scope.
 
 ---
 
-# 19. Current Mission — BEKAL V0.1 Complete
+# 19. Current Mission — BEKAL V0.2 Desktop Shell
 
-BEKAL V0.1 has reached its frozen Definition of Done and completed the approved public-release process. The repository is public under the MIT License.
+BEKAL V0.1 remains frozen and publicly released under the MIT License.
 
-Do not extend V0.1 simply because a new feature idea appears. Future product work begins as a new explicitly approved milestone or version and remains subject to the existing privacy, architecture, scope-control, and confirmation-first operating rules.
+The current approved V0.2 milestone is the Windows desktop-shell roadmap in `docs/v0.2-desktop-shell.md`.
+
+Phase 1 adds a Tauri 2 desktop shell around the existing React interface while preserving the proven FastAPI, PostgreSQL, OCR, receipt-processing, privacy, and browser-mode behavior.
+
+Do not introduce recipes, pantry features, budgeting, cloud services, authentication, HANA integration, mobile work, or unrelated product scope during this milestone.
 
 ---
 
