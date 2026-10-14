@@ -1,6 +1,6 @@
 # BEKAL
 
-BEKAL is a local-first receipt intelligence project created by **Wan Mohamad Haziq Mirza**. V0.1 aims to turn receipt PDFs into reviewed, structured data for storage, simple analysis, and CSV export. The current codebase includes receipt intake, extraction, review, confirmed local persistence, saved-receipt history and editing, a monthly dashboard, and CSV export.
+BEKAL is a local-first receipt intelligence project created by **Wan Mohamad Haziq Mirza**. V0.1 turns receipt PDFs into reviewed, structured data for private storage, simple analysis, and CSV export. The current codebase includes receipt intake, extraction, review, confirmed local persistence, saved-receipt history and editing, a monthly dashboard, CSV export, and stabilization/recovery checks.
 
 ## Quick start
 
@@ -36,6 +36,12 @@ Phase 5 adds a saved-receipt history table, private original-PDF viewing, explic
 
 Phase 8 adds a synthetic end-to-end regression check and startup reconciliation for interrupted private-PDF saves and deletes. Unreferenced PDFs are kept in ignored private `runtime-data/receipts/.recovery/` for manual review.
 
-The repository is intended to remain private during development. No software license has been selected.
+## Release status
+
+BEKAL V0.1 has passed the local release-candidate workflow and public-release preparation checks. The repository includes Git-history privacy scanning, staged-file safety checks, read-only CI verification, and a wholly synthetic demo receipt. Before any public visibility change, re-run the final privacy/dependency checks and inspect the resulting CI run.
+
+## License
+
+BEKAL is released under the **MIT License**. See `LICENSE`.
 
 See [architecture](docs/architecture.md), [development notes](docs/development.md), [V0.1 release candidate checks](docs/release-candidate.md), and [public-release preparation](docs/public-release-preparation.md) for details.
