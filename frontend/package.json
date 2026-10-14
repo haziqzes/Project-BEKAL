@@ -7,10 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "desktop:icons": "tauri icon --output src-tauri/icons src-tauri/branding/bekal-icon.svg",
+    "desktop:icons": "tauri icon --output src-tauri/generated-icons src-tauri/branding/bekal-icon.svg",
     "desktop:runtime": "node scripts/prepare-desktop-runtime.mjs",
     "desktop:prepare": "npm run desktop:icons && npm run desktop:runtime",
-    "tauri": "tauri"
+    "tauri": "npm run desktop:prepare && tauri"
   },
   "dependencies": {
     "pdfjs-dist": "^6.4.299",
