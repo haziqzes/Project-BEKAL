@@ -7,7 +7,7 @@
 > **Repository:** `haziqzes/Project-BEKAL`  
 > **Repository status:** Private during development  
 > **Current target:** BEKAL V0.1  
-> **Last updated:** 2026-10-10
+> **Last updated:** 2026-10-14
 
 ---
 
@@ -22,6 +22,8 @@ The core rule is:
 > **Implementation may change freely when justified, but the product goal, privacy model, accepted architecture, and V0.1 finish line must not be silently changed.**
 
 This file should be kept current as development progresses. At the end of each accepted phase, update the **Current Execution State** section before or with the phase handoff commit.
+
+The owner has authorized routine continuation through the already-approved BEKAL V0.1 roadmap under the same confirmation-first operating philosophy used by Project HANA. Routine work inside an accepted phase may proceed without repeated owner approval. Stop and ask only when a decision materially changes approved scope, architecture, privacy/security, persistent-data semantics, licensing, repository visibility, public-release policy, or introduces a required paid/external dependency.
 
 ---
 
@@ -154,8 +156,6 @@ Verified Phase 3 behavior:
 - browser verification with synthetic text and scanned receipts; backend tests and frontend build pass
 - PostgreSQL still contains only the foundation migration table; receipt data remains temporary
 
-## Current Phase
-
 ### Phase 4 — Persistence ✅
 
 Accepted commit: `c6cf09c feat: persist confirmed receipts and original PDFs locally` (pushed to private `origin/master`).
@@ -172,7 +172,9 @@ Verified Phase 4 behavior:
 - backend tests, frontend build, security audit, fresh and existing database migrations, and Compose health checks pass
 - runtime PDFs, database data, `.env`, and other private data remain ignored by Git
 
-### Phase 5 — Receipt History / CRUD ✅ Implementation complete; owner review pending
+### Phase 5 — Receipt History / CRUD ✅
+
+Accepted commit: `dd5e91c feat: add saved receipt history and CRUD workflow` (pushed to private `origin/master`).
 
 Verified Phase 5 behavior:
 
@@ -181,10 +183,15 @@ Verified Phase 5 behavior:
 - side-by-side original PDF and persisted metadata/items, with explicit edits, row pen controls, add/delete rows, reconciliation, and update validation
 - transactional updates preserve other receipts and shared products; aliases remain conservative
 - explicit delete confirmation removes receipt/items/PDF; already-missing PDFs can be cleaned up
-- 29 backend tests pass, frontend build passes, and a synthetic browser edit/reload/delete workflow was verified against PostgreSQL and private storage
-- runtime PDFs, database data, `.env`, and other private data remain ignored by Git
+- 29 backend tests passed at acceptance time; frontend build and dependency checks passed
+- a synthetic browser edit/reload/delete workflow was verified against PostgreSQL and private storage
+- runtime PDFs, database data, `.env`, and other private data remained ignored by Git
 
-Current handoff: Phase 5 has reached its exit condition. The implementation is uncommitted for owner review. Do not begin Phase 6 automatically.
+## Current Phase
+
+### Phase 6 — Dashboard 🚧 Authorized / next implementation milestone
+
+Phase 6 should provide the approved monthly dashboard only: selected calendar month, total spending, receipt count, top categories, most frequently purchased products, conservative recent price history, and recent receipts. It must use permanently saved receipt data only and must not consume Phase 7 export scope.
 
 ---
 
@@ -354,7 +361,7 @@ Keep receipt-processing logic separate from HTTP route code so it can be tested 
 
 Use PostgreSQL.
 
-Core future entities include:
+Core entities include:
 
 ```text
 receipts
@@ -400,7 +407,7 @@ Do not make OpenAI, Google Vision, Azure, AWS, Groq, or another external service
 
 V0.1 supports receipt PDFs.
 
-Both must eventually work:
+Both must work:
 
 1. PDFs containing embedded selectable text
 2. scanned/image PDFs requiring OCR
@@ -433,7 +440,7 @@ Raw OCR output does not need permanent storage in V0.1.
 
 ## Candidate before persistence
 
-Extraction results remain temporary until the later review/confirm phase.
+Extraction results remain temporary until review and confirmation.
 
 ```text
 Candidate
@@ -447,13 +454,11 @@ Confirm & Save
 Permanent database + PDF storage
 ```
 
-Phase 2 stops before permanent persistence.
-
 ## Uncertain results
 
 Do not fabricate certainty.
 
-Later review UI should use simple states such as:
+Review UI should use simple states such as:
 
 - normal / confident
 - `⚠` review recommended
@@ -462,7 +467,7 @@ Do not build complicated probability displays.
 
 ## Extraction failure
 
-Later phases will provide manual entry.
+Manual entry is the fallback.
 
 A failed OCR attempt must never become a reason to invent receipt data.
 
@@ -483,6 +488,7 @@ Never commit:
 - real CSV exports
 - logs containing private receipt contents
 - `.env`
+- secrets contained in `.env.*`
 - passwords
 - API keys
 - access tokens
@@ -490,6 +496,8 @@ Never commit:
 - private keys
 - local backups
 - user-specific private configuration
+
+`.env.example` is an intentionally public, non-secret template and is allowed to be tracked. Privacy gates must distinguish `.env.example` from real environment/secret files rather than flagging it as a failure.
 
 Treat `.gitignore` as security-relevant.
 
@@ -617,29 +625,36 @@ Do not perform destructive machine-level operations unrelated to BEKAL.
 For each milestone:
 
 1. Read the relevant specification.
-2. Inspect the current repository and Git status.
-3. Identify the smallest coherent implementation step.
+2. Establish repository, branch, HEAD, working tree, remote/canonical state, and current evidence.
+3. Identify the smallest coherent implementation step and explicit Non-Goals.
 4. Implement it.
 5. Run appropriate tests/checks.
-6. Fix failures caused by the change.
+6. Fix failures caused by the change; do not weaken gates to make them pass.
 7. Review the diff.
 8. Update documentation when reality changed.
-9. Update **Current Execution State** in this `AGENTS.md` when a phase is accepted/completed.
-10. Make a clean commit when instructed or when the milestone contract says to do so.
-11. Report changes, verification, limitations, and next logical step.
+9. Update **Current Execution State** in this `AGENTS.md` when a phase is completed/accepted.
+10. Perform a final privacy/Git review.
+11. When the phase exit condition is satisfied and no owner-level decision is outstanding, make a scoped commit and push it to the existing private remote.
+12. Verify the exact pushed commit and clean working tree.
+13. Continue to the next already-approved V0.1 phase without requiring a routine owner handoff.
+14. Stop only at a material owner decision or after the authorized V0.1 work reaches its defined stopping point.
 
-Do not ask for approval for routine matters such as helper-function names, small library choices, test placement, ordinary refactors, formatting, or internal module boundaries.
+Do not ask for approval for routine matters such as helper-function names, small library choices, test placement, ordinary refactors, formatting, internal module boundaries, or other reversible choices inside an accepted milestone.
 
 Ask the owner when a decision materially changes:
 
-- V0.1 scope
-- privacy behavior
-- irreversible data semantics
+- V0.1 scope or finish line
+- privacy/security behavior
+- irreversible persistent-data semantics
 - public-release policy
 - software licensing
+- repository visibility
 - accepted architecture
 - destructive migration of real user data
-- reliance on paid/external infrastructure
+- major frameworks/dependencies
+- reliance on required paid/external infrastructure
+
+Do not choose a software license or make the repository public without explicit owner approval. Public-release preparation may proceed up to those decision boundaries.
 
 ---
 
@@ -661,6 +676,7 @@ V0.1 should eventually cover:
 - duplicate detection
 - persistence
 - update/delete behavior
+- dashboard analytics
 - CSV export
 - API health
 - end-to-end core workflow
@@ -712,8 +728,8 @@ Phase 1  Receipt intake / preview      ✅
 Phase 2  Receipt extraction            ✅
 Phase 3  Review & normalization        ✅
 Phase 4  Persistence                   ✅
-Phase 5  History / CRUD                ✅ review pending
-Phase 6  Dashboard
+Phase 5  History / CRUD                ✅
+Phase 6  Dashboard                     🚧 current
 Phase 7  CSV export
 Phase 8  Testing / stabilization
 Phase 9  V0.1 release candidate
@@ -724,11 +740,26 @@ No phase should silently consume the next phase's scope.
 
 ---
 
-# 19. Current Mission — Phase 5 History / CRUD Handoff
+# 19. Current Mission — Phase 6 Dashboard
 
-Phase 4 was accepted and pushed as `c6cf09c`. Phase 5 adds only saved-receipt history, private PDF viewing, explicit persisted edits, and confirmed deletion. The Phase 5 exit condition is met: a synthetic saved receipt was listed, opened beside its PDF, edited, reloaded, and deleted; another saved receipt remained intact. Automated tests cover history ordering, private PDF access and path safety, validation, aliases, rollback, and deletion. Changes remain uncommitted for owner review.
+Phase 5 is accepted and pushed as `dd5e91c`. Phase 6 is the next approved implementation milestone.
 
-The accepted Phase 4 crash window between PDF copy and database commit may leave an orphan PDF. Phase 5's file rename and database delete also have narrow machine-crash windows; ordinary failures restore the file. Defer crash reconciliation to Phase 8 stabilization. Do not begin Phase 6 without owner direction.
+Phase 6 objective: turn permanently saved receipt data into a simple monthly overview containing total spending, receipt count, top spending categories, most frequently purchased products, conservative recent comparable price history, and recent receipts, with a simple calendar-month selector.
+
+Preserve these Phase 6 boundaries:
+
+- use only permanently persisted receipt data;
+- current month by default with a simple month selector;
+- MYR only;
+- handle missing/partial values without fabrication;
+- keep the UI simple and low-clutter;
+- reuse existing Phase 5 receipt-detail navigation where practical;
+- do not implement CSV/XLSX export, budgets, predictions, price crawling, advanced date ranges, authentication, recipes, pantry, notifications, HANA integration, or other Phase 7+ functionality;
+- preserve the documented narrow filesystem/database crash-consistency limitations for Phase 8 stabilization unless a tiny, clearly safe fix occurs naturally.
+
+Phase 6 exit condition: a user can select a calendar month and see correct persisted monthly spending, receipt count, top categories, most-purchased products, recent comparable price history, and recent receipts; edits/deletions must be reflected, empty/partial months must remain safe, tests/build/audits/Compose checks must pass, and private/runtime data must remain outside Git.
+
+When Phase 6 passes its exit condition, update this file, commit/push the phase, verify the pushed commit and clean state, then continue to Phase 7 under the standing V0.1 authorization unless a material owner decision appears.
 
 ---
 
@@ -739,30 +770,101 @@ When starting or continuing work, use this operating instruction:
 ```text
 Work in C:\Projects\Project-BEKAL with full repository access.
 
-Read AGENTS.md first and treat it as the persistent operating contract and current handoff for Project BEKAL. Then read the source-of-truth BEKAL V0.1 documents relevant to the current milestone.
+Read AGENTS.md first and treat it as the persistent operating contract and current handoff for Project BEKAL. Then read only the source-of-truth BEKAL V0.1 documents relevant to the current milestone.
 
-Inspect the repository, current Git history, working tree, Docker state, tests, and existing implementation before making changes.
+Establish current repository evidence before changing anything: repository, branch, HEAD, working tree, origin/canonical state, relevant tests, Docker/runtime state, affected code, migrations, and current accepted milestone.
 
-Implement only the Current Mission defined in AGENTS.md. Do not silently expand scope into later phases. If you identify a useful out-of-scope feature, record it as a future/backlog idea and continue with the approved milestone.
+Implement only the Current Mission defined in AGENTS.md. Keep explicit Non-Goals. Do not silently expand scope into later phases. If a useful idea is outside the current milestone, record/defer it and continue with the approved objective.
 
-You may independently create, edit, delete, rename, refactor, test, document, install appropriate project dependencies, run Docker, run migrations, and use Git inside this repository. Prefer simple, maintainable, local-first implementations over unnecessary architecture.
+You may independently create, edit, delete, rename, refactor, test, document, install appropriate project dependencies, run Docker, run migrations, use Git, make scoped commits, and push normal commits to the existing private GitHub repository when the milestone exit condition is satisfied. Prefer simple, maintainable, local-first implementations over unnecessary architecture.
 
-Protect privacy aggressively: never commit real receipts, runtime user data, exports, secrets, credentials, .env files, database data, or private logs. Use synthetic fixtures only.
+Protect privacy aggressively: never commit real receipts, runtime user data, exports containing real user data, secrets, credentials, real .env files, database data/dumps, or private logs. `.env.example` is an allowed non-secret template. Use synthetic fixtures only.
 
-For the current milestone:
-1. inspect first,
-2. implement the smallest coherent solution,
-3. test it,
-4. fix failures,
-5. review the diff,
-6. update relevant documentation,
-7. update AGENTS.md Current Execution State when the phase reaches its exit condition,
-8. perform a final Git/privacy review,
-9. leave changes uncommitted for owner review unless explicitly instructed to commit,
-10. stop at the milestone boundary.
+For each already-approved V0.1 milestone:
+1. inspect current evidence first,
+2. define the smallest coherent implementation and Non-Goals,
+3. implement,
+4. test,
+5. fix root causes,
+6. review the full diff,
+7. update relevant documentation and AGENTS.md,
+8. perform final Git/privacy checks,
+9. commit and push if all gates pass,
+10. verify the exact pushed commit and clean working tree,
+11. continue to the next approved V0.1 phase.
 
-If a decision would materially alter V0.1 scope, privacy behavior, irreversible data semantics, accepted core architecture, software licensing, repository visibility, or introduce required paid/external infrastructure, stop and ask the owner. Otherwise make the best engineering decision and keep moving.
+Stop and ask the owner only if a decision would materially alter V0.1 scope/finish line, privacy/security behavior, irreversible persistent-data semantics, accepted architecture, software licensing, repository visibility/public release, destructive real-data behavior, major framework/dependency choice, or introduce required paid/external infrastructure.
+
+Do not choose a software license or make the repository public without explicit owner approval.
 ```
+
+## Owner-run Windows PowerShell convention
+
+When the owner must run a multi-step Windows command, produce **one self-contained PowerShell 5.1-compatible copy/paste block** using the Project HANA execution shape.
+
+Required outer structure:
+
+```powershell
+& {
+    $ErrorActionPreference = 'Stop'
+    Set-StrictMode -Version Latest
+
+    # ============================================================
+    # 1. STRICT ENTRY STATE
+    # ============================================================
+
+    # Verify path/repository/branch/HEAD/remote/preconditions here.
+    # Fail closed before mutation when the expected entry state is not true.
+
+    # ============================================================
+    # 2. MAIN OPERATION
+    # ============================================================
+
+    # Perform the bounded operation here.
+
+    # ============================================================
+    # 3. VERIFICATION
+    # ============================================================
+
+    # Run tests/checks/audits and verify expected behavior here.
+
+    # ============================================================
+    # 4. FINAL STATE
+    # ============================================================
+
+    # Verify Git/runtime/final-state invariants here.
+
+    # ============================================================
+    # 5. FINAL RESULT
+    # ============================================================
+
+    Write-Host ''
+    Write-Host '============================================================'
+    Write-Host 'PROJECT BEKAL - <OPERATION> RESULT'
+    Write-Host '============================================================'
+    Write-Host ''
+
+    # Print a concise final result summary.
+}
+```
+
+Rules for owner-run PowerShell blocks:
+
+- always wrap the entire operation in `& { ... }` so a terminating error stops the block instead of allowing later pasted commands to continue independently;
+- set `$ErrorActionPreference = 'Stop'` at the top;
+- normally use `Set-StrictMode -Version Latest`;
+- use the five numbered sections above unless the operation is genuinely too small to need all five;
+- make entry checks fail closed before mutation;
+- put all mutation in the MAIN OPERATION section;
+- run tests/checks after mutation in VERIFICATION;
+- verify branch/HEAD/working tree/runtime invariants in FINAL STATE;
+- print one concise result summary only after all gates pass;
+- use PowerShell 5.1-compatible syntax unless the owner explicitly requests otherwise;
+- wrap command output in `@(...)` when scalar-vs-array behavior could break under StrictMode;
+- never assign to PowerShell's built-in `$Host` variable;
+- do not weaken a safety/privacy/test gate merely to make the script continue;
+- when scanning for secret environment files, allow the tracked non-secret template `.env.example` while still rejecting real `.env` and secret `.env.*` files;
+- prefer a single copy/paste block over a sequence of separate commands.
 
 ---
 
