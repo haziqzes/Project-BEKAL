@@ -1,8 +1,25 @@
 # BEKAL
 
-BEKAL is a local-first receipt intelligence project created by **Wan Mohamad Haziq Mirza**. V0.1 turns receipt PDFs into reviewed, structured data for private storage, simple analysis, and CSV export. The current codebase includes receipt intake, extraction, review, confirmed local persistence, saved-receipt history and editing, a monthly dashboard, CSV export, and stabilization/recovery checks.
+BEKAL is a local-first receipt intelligence project created by **Wan Mohamad Haziq Mirza**. V0.1 established the receipt-processing core; V0.2 adds a native Windows desktop shell and installer while preserving the same private, local-first backend and data model. The current codebase includes PDF receipt intake, local extraction/OCR, editable review, confirmed persistence, saved-receipt history and editing, a monthly dashboard, CSV export, recovery checks, and a Tauri-based Windows application.
 
-## Quick start
+## Windows application (V0.2)
+
+BEKAL V0.2 can be installed as a normal per-user Windows application. Docker Desktop remains a prerequisite because PostgreSQL and FastAPI continue to run locally in containers.
+
+The installed application:
+
+- launches as `BEKAL.exe` from Windows rather than requiring a browser tab;
+- starts its private `bekal-desktop` PostgreSQL/FastAPI runtime when required;
+- keeps FastAPI bound only to `127.0.0.1:8000` and does not expose PostgreSQL to host TCP;
+- stores private writable runtime data under the user's local application-data directory, outside the source repository;
+- preserves the generated private `.env`, receipt PDFs, and PostgreSQL data across normal shutdown, uninstall, and reinstall;
+- installs a Start Menu shortcut and uses the BEKAL application branding.
+
+The installer is intentionally unsigned in V0.2. Verify published checksums before running downloaded installer artifacts.
+
+See [V0.2 Windows packaging](docs/v0.2-windows-packaging.md) for the packaging/runtime contract and acceptance evidence.
+
+## Docker/browser development quick start
 
 Requires Docker Desktop with Compose.
 
@@ -20,7 +37,7 @@ Stop services with `docker compose down`. PostgreSQL data persists in its named 
 
 ## Scope and privacy
 
-The approved V0.1 scope is in `BEKAL_Requirements_V0.1.md` and the other `BEKAL_*` design documents. Recipes, pantry tracking, budgeting, authentication, mobile apps, and cloud services are outside V0.1.
+The approved V0.1 scope is in `BEKAL_Requirements_V0.1.md` and the other `BEKAL_*` design documents. Recipes, pantry tracking, budgeting, authentication, mobile apps, and cloud services remain outside the current product scope.
 
 Real receipts, database files, exports, credentials, and runtime data belong outside source control. `runtime-data/` holds private local receipt files and is ignored by Git. Use only synthetic fixtures in `examples/synthetic/`.
 
@@ -38,10 +55,12 @@ Phase 8 adds a synthetic end-to-end regression check and startup reconciliation 
 
 ## Release status
 
-BEKAL V0.1 is complete and publicly released. The final release gate passed Git-history privacy scanning, backend tests and dependency auditing, frontend build and dependency auditing, local Docker/runtime verification, loopback-only exposure checks, and GitHub CI. The repository includes staged-file safety checks and a wholly synthetic demo receipt; real receipt and runtime data remain outside source control.
+BEKAL V0.1 is complete and publicly released. BEKAL V0.2 desktop packaging has completed its owner-machine acceptance gate: native installation, packaged-runtime isolation, loopback-only FastAPI, non-exposed PostgreSQL, receipt/dashboard/history behavior, owned-service shutdown, relaunch persistence, uninstall data preservation, reinstall restoration, product version metadata, and Start Menu integration all passed with the corrected Windows installer.
+
+Repository release gates include Git-history privacy scanning, backend tests and Python dependency auditing, frontend build and npm auditing, Rust format/check and dependency auditing, Windows NSIS packaging, installer verification, and GitHub Actions CI.
 
 ## License
 
 BEKAL is released under the **MIT License**. See `LICENSE`.
 
-See [architecture](docs/architecture.md), [development notes](docs/development.md), [V0.1 release candidate checks](docs/release-candidate.md), and [public-release preparation](docs/public-release-preparation.md) for details.
+See [architecture](docs/architecture.md), [development notes](docs/development.md), [V0.1 release candidate checks](docs/release-candidate.md), [public-release preparation](docs/public-release-preparation.md), and [V0.2 Windows packaging](docs/v0.2-windows-packaging.md) for details.

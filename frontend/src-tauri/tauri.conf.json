@@ -1,7 +1,8 @@
 {
   "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "BEKAL",
-  "version": "0.1.0",
+  "mainBinaryName": "BEKAL",
+  "version": "0.2.0",
   "identifier": "com.haziqzes.bekal",
   "build": {
     "frontendDist": "../dist",
@@ -26,16 +27,39 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all",
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
+    "targets": [
+      "nsis"
     ],
-    "android": {
-      "debugApplicationIdSuffix": ".debug"
+    "publisher": "Wan Haziq",
+    "copyright": "Copyright © 2026 Wan Haziq",
+    "category": "Utility",
+    "shortDescription": "Local-first grocery receipt intelligence.",
+    "longDescription": "BEKAL turns grocery receipt PDFs into structured, editable spending records while keeping household data local.",
+    "homepage": "https://github.com/haziqzes/Project-BEKAL",
+    "license": "MIT",
+    "licenseFile": "../../LICENSE",
+    "resources": [
+      "generated-runtime"
+    ],
+    "icon": [
+      "generated-icons/32x32.png",
+      "generated-icons/128x128.png",
+      "generated-icons/128x128@2x.png",
+      "generated-icons/icon.icns",
+      "generated-icons/icon.ico"
+    ],
+    "windows": {
+      "allowDowngrades": false,
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper",
+        "silent": true
+      },
+      "nsis": {
+        "installMode": "currentUser",
+        "startMenuFolder": "BEKAL",
+        "installerIcon": "generated-icons/icon.ico",
+        "uninstallerIcon": "generated-icons/icon.ico"
+      }
     }
   }
 }

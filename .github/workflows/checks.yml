@@ -54,3 +54,63 @@ jobs:
         working-directory: frontend
       - run: npm audit --audit-level=low
         working-directory: frontend
+
+  desktop-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - name: Prepare desktop resources
+        run: npm run desktop:prepare
+        working-directory: frontend
+      - name: Select stable Rust MSVC toolchain
+        shell: pwsh
+        run: |
+          rustup default stable-x86_64-pc-windows-msvc
+          rustc --version
+          cargo --version
+      - name: Rust format and compile
+        shell: pwsh
+        run: |
+          cargo fmt --manifest-path frontend/src-tauri/Cargo.toml --check
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo check --locked --manifest-path frontend/src-tauri/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Rust dependency audit
+        shell: pwsh
+        run: |
+          cargo install cargo-audit --locked
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Push-Location frontend/src-tauri
+          try {
+            cargo audit
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          finally {
+            Pop-Location
+          }
+      - name: Build BEKAL NSIS installer
+        run: npm run tauri build -- --bundles nsis
+        working-directory: frontend
+      - name: Verify installer output
+        shell: pwsh
+        run: |
+          $Installers = @(Get-ChildItem 'frontend/src-tauri/target/release/bundle/nsis/*-setup.exe')
+          if ($Installers.Count -ne 1) {
+            throw "Expected exactly one NSIS installer, found $($Installers.Count)."
+          }
+          Write-Host "Installer: $($Installers[0].FullName)"
+          Write-Host "SHA256: $((Get-FileHash $Installers[0].FullName -Algorithm SHA256).Hash)"
+      - uses: actions/upload-artifact@v6
+        with:
+          name: BEKAL-Windows-Installer
+          path: frontend/src-tauri/target/release/bundle/nsis/*-setup.exe
+          if-no-files-found: error

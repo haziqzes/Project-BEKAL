@@ -60,6 +60,8 @@ node_modules/
 dist/
 build/
 *.tsbuildinfo
+frontend/src-tauri/generated-icons/
+frontend/src-tauri/generated-runtime/
 
 # Editor and OS
 .vscode/
