@@ -209,9 +209,13 @@ Implemented on-demand UTF-8 `receipts.csv` and `items.csv` downloads from saved 
 
 Added a synthetic upload → extract → correct → save → view → CSV regression test. Startup reconciliation restores PDFs from interrupted deletes when the database row remains, finishes committed deletions, and quarantines unreferenced PDFs from interrupted saves in ignored private storage for manual review. Existing parser, normalization, database, duplicate, CSV, OCR, and failure-path tests remain passing. Verified build, audits, Compose health, and Git privacy in the Phase 8 commit.
 
-### Phase 9 — V0.1 Release Candidate 🚧 Authorized / next implementation milestone
+### Phase 9 — V0.1 Release Candidate ✅
 
-Check the frozen V0.1 acceptance criteria against the running local system and resolve only blockers. No new product features.
+The frozen 13-step acceptance path has a synthetic end-to-end check through extraction, correction, save, history, dashboard, saved edit, both CSV exports, and PDF deletion. UI review, local Compose health, tests, build, audits, migrations, and Git privacy were checked. The repeatable release candidate verification and remaining limits are documented in `docs/release-candidate.md`.
+
+### Phase 10 — Public-Release Preparation 🚧 Authorized / next implementation milestone
+
+Review source and history privacy, safety checks, documentation, creator credit, and synthetic demo readiness. Do not select a software license or change repository visibility without owner approval.
 
 ---
 
@@ -752,17 +756,17 @@ Phase 5  History / CRUD                ✅
 Phase 6  Dashboard                     ✅
 Phase 7  CSV export                    ✅
 Phase 8  Testing / stabilization       ✅
-Phase 9  V0.1 release candidate        🚧 next
-Phase 10 Public-release preparation
+Phase 9  V0.1 release candidate        ✅
+Phase 10 Public-release preparation  🚧 next
 ```
 
 No phase should silently consume the next phase's scope.
 
 ---
 
-# 19. Current Mission — Phase 9 V0.1 Release Candidate
+# 19. Current Mission — Phase 10 Public-Release Preparation
 
-Phase 8 testing and stabilization has met its exit condition. Verify every frozen V0.1 acceptance criterion using synthetic data and the running local stack. Fix only blockers to the approved path. Document the candidate status, remaining limits, and repeatable verification. Run tests, build, dependency audits, Compose health, and Git privacy review before committing and pushing Phase 9. Continue to Phase 10 public-release preparation only up to the owner decisions on licensing and repository visibility; never make the repository public or choose a license autonomously.
+Phase 9 V0.1 release candidate has met its exit condition. Prepare the private repository for a possible public release: review tracked files and commit history for private data or secrets, check ignore and pre-commit/CI defenses, documentation, creator credit, and a safe synthetic demo path. Do not add product features. Do not choose a software license or change repository visibility without the owner's explicit decision. Complete reversible preparation, then stop at those owner-level decisions.
 
 ---
 

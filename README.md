@@ -38,4 +38,4 @@ Phase 8 adds a synthetic end-to-end regression check and startup reconciliation 
 
 The repository is intended to remain private during development. No software license has been selected.
 
-See [architecture](docs/architecture.md) and [development notes](docs/development.md) for details.
+See [architecture](docs/architecture.md), [development notes](docs/development.md), and [V0.1 release candidate checks](docs/release-candidate.md) for details.

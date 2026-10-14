@@ -48,6 +48,31 @@ def test_upload_extract_correct_save_view_and_export(setup) -> None:
     with engine.connect() as connection:
         assert connection.execute(select(receipts.c.id)).scalars().all() == [candidate_id]
 
+    dashboard = client.get("/api/dashboard?month=2026-10")
+    assert dashboard.status_code == 200
+    assert dashboard.json()["total_spending"] == 9
+    change = detail.json()
+    change["receipt"]["final_total"] = 10
+    change["items"][0]["line_total"] = 10
+    changed = client.put(f"/api/receipts/{candidate_id}", json={
+        "receipt": change["receipt"], "items": change["items"],
+    })
+    assert changed.status_code == 200
+    assert client.get("/api/dashboard?month=2026-10").json()["total_spending"] == 10
+    receipt_rows = list(csv.DictReader(StringIO(client.get("/api/exports/receipts.csv").content.decode("utf-8-sig"))))
+    item_rows = list(csv.DictReader(StringIO(client.get("/api/exports/items.csv").content.decode("utf-8-sig"))))
+    assert receipt_rows[0]["final_total_myr"] == "10.00"
+    assert item_rows[0]["line_total_myr"] == "10.00"
+    with engine.connect() as connection:
+        relative = connection.execute(select(receipts.c.original_file_path)).scalar_one()
+    stored_pdf = root / "receipts" / relative
+    assert stored_pdf.is_file()
+    assert client.delete(f"/api/receipts/{candidate_id}").status_code == 200
+    assert not stored_pdf.exists()
+    assert client.get(f"/api/receipts/{candidate_id}").status_code == 404
+    assert client.get("/api/dashboard?month=2026-10").json()["total_spending"] == 0
+    assert list(csv.DictReader(StringIO(client.get("/api/exports/receipts.csv").content.decode("utf-8-sig")))) == []
+
 
 def test_recovery_restores_precommit_delete_and_finishes_committed_delete(setup) -> None:
     client, engine, root = setup
