@@ -12,6 +12,7 @@ from app.dashboard import router as dashboard_router
 from app.exports import router as export_router
 from app.history import router as history_router
 from app.intake import router as intake_router
+from app.storage_recovery import recover_private_storage
 
 
 @asynccontextmanager
@@ -19,6 +20,7 @@ async def lifespan(app: FastAPI):
     store = CandidateStore(Path(os.getenv("CANDIDATE_STORAGE_DIR", "../runtime-data/candidates")))
     store.prepare()
     app.state.candidate_store = store
+    recover_private_storage(os.getenv("DATABASE_URL"), Path(os.getenv("RECEIPT_STORAGE_DIR", "../runtime-data/receipts")))
 
     async def expire_candidates() -> None:
         while True:

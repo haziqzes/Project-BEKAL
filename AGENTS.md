@@ -205,9 +205,13 @@ Implementation complete and verified in the Phase 6 dashboard commit that includ
 
 Implemented on-demand UTF-8 `receipts.csv` and `items.csv` downloads from saved MYR data. Exports are generated in memory and never stored by the backend. Nullable values stay blank, MYR fields remain decimal, and spreadsheet formula triggers in text are escaped. Empty exports, saved edits/deletes, backend tests, frontend build, audits, Compose health, and Git privacy were verified in the Phase 7 commit.
 
-### Phase 8 — Testing / Stabilization 🚧 Authorized / next implementation milestone
+### Phase 8 — Testing / Stabilization ✅
 
-Strengthen the approved V0.1 workflow and resolve documented crash-consistency gaps using synthetic data. Do not expand the product scope.
+Added a synthetic upload → extract → correct → save → view → CSV regression test. Startup reconciliation restores PDFs from interrupted deletes when the database row remains, finishes committed deletions, and quarantines unreferenced PDFs from interrupted saves in ignored private storage for manual review. Existing parser, normalization, database, duplicate, CSV, OCR, and failure-path tests remain passing. Verified build, audits, Compose health, and Git privacy in the Phase 8 commit.
+
+### Phase 9 — V0.1 Release Candidate 🚧 Authorized / next implementation milestone
+
+Check the frozen V0.1 acceptance criteria against the running local system and resolve only blockers. No new product features.
 
 ---
 
@@ -747,8 +751,8 @@ Phase 4  Persistence                   ✅
 Phase 5  History / CRUD                ✅
 Phase 6  Dashboard                     ✅
 Phase 7  CSV export                    ✅
-Phase 8  Testing / stabilization       🚧 next
-Phase 9  V0.1 release candidate
+Phase 8  Testing / stabilization       ✅
+Phase 9  V0.1 release candidate        🚧 next
 Phase 10 Public-release preparation
 ```
 
@@ -756,9 +760,9 @@ No phase should silently consume the next phase's scope.
 
 ---
 
-# 19. Current Mission — Phase 8 Testing / Stabilization
+# 19. Current Mission — Phase 9 V0.1 Release Candidate
 
-Phase 7 CSV export has met its exit condition. Stabilize the existing V0.1 receipt path under the standing authorization. Focus on meaningful synthetic end-to-end checks, error recovery, privacy and regression testing, and the documented rare file/database crash-consistency windows from Phases 4 and 5. Do not add product features, external services, or new persistence semantics. Verify tests, build, dependency audits, Compose health, and Git privacy before committing and pushing Phase 8. Continue to Phase 9 after its exit condition under the approved roadmap.
+Phase 8 testing and stabilization has met its exit condition. Verify every frozen V0.1 acceptance criterion using synthetic data and the running local stack. Fix only blockers to the approved path. Document the candidate status, remaining limits, and repeatable verification. Run tests, build, dependency audits, Compose health, and Git privacy review before committing and pushing Phase 9. Continue to Phase 10 public-release preparation only up to the owner decisions on licensing and repository visibility; never make the repository public or choose a license autonomously.
 
 ---
 

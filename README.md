@@ -34,6 +34,8 @@ Phase 4 adds **Confirm & Save** after the user checks an acknowledgement beside 
 
 Phase 5 adds a saved-receipt history table, private original-PDF viewing, explicit metadata and item edits, and confirmed deletion of a saved receipt and its PDF. Phase 6 adds a read-only calendar-month dashboard based only on saved receipts. It shows known spending, receipt count, category item spending, product purchase occurrences, comparable unit prices, and recent receipts. Missing totals remain marked as incomplete. Phase 7 adds on-demand UTF-8 `receipts.csv` and `items.csv` downloads from saved data. Export files are not stored by the server; downloaded copies contain private receipt data and should be kept outside Git.
 
+Phase 8 adds a synthetic end-to-end regression check and startup reconciliation for interrupted private-PDF saves and deletes. Unreferenced PDFs are kept in ignored private `runtime-data/receipts/.recovery/` for manual review.
+
 The repository is intended to remain private during development. No software license has been selected.
 
 See [architecture](docs/architecture.md) and [development notes](docs/development.md) for details.

@@ -181,7 +181,7 @@ def delete_receipt(receipt_id: UUID) -> dict:
                 raise HTTPException(status_code=404, detail="Receipt not found")
             pdf = _private_pdf(root, relative)
             if pdf.is_file():
-                staged = pdf.with_name(f".{uuid4()}.deleting")
+                staged = pdf.with_name(f".{pdf.name}.{receipt_id}.deleting")
                 pdf.rename(staged)
             else:
                 missing = True
