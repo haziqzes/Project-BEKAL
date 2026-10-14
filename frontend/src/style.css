@@ -74,6 +74,9 @@ th { color: #53645b; }
 .dashboard-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
 .dashboard-section { margin-top: 28px; }
 .dashboard-section h4 { margin-bottom: 5px; }
+.export-actions { margin: 0 0 8px; }
+.download-link { display: inline-block; border: 1px solid #23654c; border-radius: 7px; padding: 10px 16px; color: #23654c; background: white; text-decoration: none; }
+.download-link:hover { background: #eef6ef; }
 @media (max-width: 760px) { .candidate-content { grid-template-columns: 1fr; } }
 @media (max-width: 760px) { .dashboard-grid { grid-template-columns: 1fr; } }
 @media (max-width: 540px) { .field-grid { grid-template-columns: 1fr; } }

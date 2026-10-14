@@ -201,9 +201,13 @@ Implementation complete and verified in the Phase 6 dashboard commit that includ
 
 ## Current Phase
 
-### Phase 7 — CSV Export 🚧 Authorized / next implementation milestone
+### Phase 7 — CSV Export ✅
 
-Implement only the approved `receipts.csv` and `items.csv` downloads from saved data. Keep exported data private and outside Git.
+Implemented on-demand UTF-8 `receipts.csv` and `items.csv` downloads from saved MYR data. Exports are generated in memory and never stored by the backend. Nullable values stay blank, MYR fields remain decimal, and spreadsheet formula triggers in text are escaped. Empty exports, saved edits/deletes, backend tests, frontend build, audits, Compose health, and Git privacy were verified in the Phase 7 commit.
+
+### Phase 8 — Testing / Stabilization 🚧 Authorized / next implementation milestone
+
+Strengthen the approved V0.1 workflow and resolve documented crash-consistency gaps using synthetic data. Do not expand the product scope.
 
 ---
 
@@ -742,8 +746,8 @@ Phase 3  Review & normalization        ✅
 Phase 4  Persistence                   ✅
 Phase 5  History / CRUD                ✅
 Phase 6  Dashboard                     ✅
-Phase 7  CSV export                    🚧 next
-Phase 8  Testing / stabilization
+Phase 7  CSV export                    ✅
+Phase 8  Testing / stabilization       🚧 next
 Phase 9  V0.1 release candidate
 Phase 10 Public-release preparation
 ```
@@ -752,11 +756,9 @@ No phase should silently consume the next phase's scope.
 
 ---
 
-# 19. Current Mission — Phase 7 CSV Export
+# 19. Current Mission — Phase 8 Testing / Stabilization
 
-Phase 6 dashboard implementation has met its exit condition. Implement Phase 7 under the standing V0.1 authorization.
-
-Phase 7 objective: export permanently saved receipts as two UTF-8 CSV files, `receipts.csv` and `items.csv`, with clear MYR numeric fields suitable for Excel. Keep exports on demand and outside Git. Do not add XLSX, dashboard expansion, filtering infrastructure, cloud services, or later-phase features. Verify empty data, nullable fields, CSV safety, saved edits/deletes, tests, build, audits, Compose health, and Git privacy before committing and pushing Phase 7. Continue to Phase 8 after its exit condition under the approved roadmap.
+Phase 7 CSV export has met its exit condition. Stabilize the existing V0.1 receipt path under the standing authorization. Focus on meaningful synthetic end-to-end checks, error recovery, privacy and regression testing, and the documented rare file/database crash-consistency windows from Phases 4 and 5. Do not add product features, external services, or new persistence semantics. Verify tests, build, dependency audits, Compose health, and Git privacy before committing and pushing Phase 8. Continue to Phase 9 after its exit condition under the approved roadmap.
 
 ---
 

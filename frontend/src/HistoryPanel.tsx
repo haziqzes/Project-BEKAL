@@ -105,6 +105,8 @@ export function HistoryPanel({ openReceiptId }: { openReceiptId?: string | null 
 
   return <section className="intake-panel" aria-label="Receipt History">
     <div className="section-heading"><h2>Receipt History</h2><button type="button" className="secondary" onClick={() => void loadHistory()}>Refresh</button></div>
+    <div className="actions export-actions"><a className="download-link" href="/api/exports/receipts.csv" download="receipts.csv">Download receipts.csv</a><a className="download-link" href="/api/exports/items.csv" download="items.csv">Download items.csv</a></div>
+    <p className="review-note">CSV downloads contain your saved receipt data. Keep them in private storage.</p>
     {notice && <p role="status" className="ready-state">{notice}</p>}{error && <p role="alert" className="error">{error}</p>}
     {!history.length ? <p>No saved receipts yet.</p> : <div className="table-scroll"><table><thead><tr><th>Date</th><th>Store</th><th>Items</th><th>Total</th><th>Actions</th></tr></thead><tbody>{history.map(row => <tr key={row.id}>
       <td>{row.receipt_date ?? 'Unknown'}</td><td>{row.store_name ?? 'Unknown'}</td><td>{row.item_count}</td><td>{money(row.final_total)}</td>
