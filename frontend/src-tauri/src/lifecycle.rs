@@ -163,9 +163,7 @@ fn prepare_packaged_runtime(app: &tauri::AppHandle) -> Result<PathBuf, String> {
     sync_managed_tree(&template_root, &runtime_root)?;
 
     fs::create_dir_all(runtime_root.join("runtime-data")).map_err(|error| {
-        format!(
-            "Could not create BEKAL private runtime-data directory: {error}"
-        )
+        format!("Could not create BEKAL private runtime-data directory: {error}")
     })?;
 
     ensure_runtime_env(&runtime_root)?;
@@ -264,7 +262,9 @@ fn generate_local_password() -> Result<String, String> {
                     let candidate = String::from_utf8_lossy(&output.stdout).trim().to_string();
 
                     if candidate.len() >= 32
-                        && candidate.chars().all(|character| character.is_ascii_alphanumeric())
+                        && candidate
+                            .chars()
+                            .all(|character| character.is_ascii_alphanumeric())
                     {
                         return Ok(candidate);
                     }
@@ -280,8 +280,10 @@ fn generate_local_password() -> Result<String, String> {
 
     #[cfg(not(target_os = "windows"))]
     {
-        Err("Packaged BEKAL runtime initialization is currently supported on Windows only."
-            .to_string())
+        Err(
+            "Packaged BEKAL runtime initialization is currently supported on Windows only."
+                .to_string(),
+        )
     }
 }
 
