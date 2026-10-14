@@ -1,66 +1,174 @@
 # BEKAL
 
-BEKAL is a local-first receipt intelligence project created by **Wan Mohamad Haziq Mirza**. V0.1 established the receipt-processing core; V0.2 adds a native Windows desktop shell and installer while preserving the same private, local-first backend and data model. The current codebase includes PDF receipt intake, local extraction/OCR, editable review, confirmed persistence, saved-receipt history and editing, a monthly dashboard, CSV export, recovery checks, and a Tauri-based Windows application.
+[![BEKAL checks](https://github.com/haziqzes/Project-BEKAL/actions/workflows/checks.yml/badge.svg?branch=master)](https://github.com/haziqzes/Project-BEKAL/actions/workflows/checks.yml)
+[![Release](https://img.shields.io/github/v/release/haziqzes/Project-BEKAL?display_name=tag)](https://github.com/haziqzes/Project-BEKAL/releases/latest)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## Windows application (V0.2)
+**Local-first grocery receipt intelligence for Windows.**
 
-BEKAL V0.2 can be installed as a normal per-user Windows application. Docker Desktop remains a prerequisite because PostgreSQL and FastAPI continue to run locally in containers.
+BEKAL turns receipt PDFs into reviewed, structured spending records while keeping household data local. It extracts selectable PDF text when available, falls back to local Tesseract OCR for scanned receipts, lets the user correct the result beside the original PDF, and only saves data after explicit confirmation.
 
-The installed application:
+**Current release:** `v0.2.0`  
+**Platform:** Windows desktop  
+**Creator:** Wan Mohamad Haziq Mirza  
+**License:** MIT
 
-- launches as `BEKAL.exe` from Windows rather than requiring a browser tab;
-- starts its private `bekal-desktop` PostgreSQL/FastAPI runtime when required;
-- keeps FastAPI bound only to `127.0.0.1:8000` and does not expose PostgreSQL to host TCP;
-- stores private writable runtime data under the user's local application-data directory, outside the source repository;
-- preserves the generated private `.env`, receipt PDFs, and PostgreSQL data across normal shutdown, uninstall, and reinstall;
-- installs a Start Menu shortcut and uses the BEKAL application branding.
+## Download
 
-The installer is intentionally unsigned in V0.2. Verify published checksums before running downloaded installer artifacts.
+Download the current Windows installer from the [BEKAL v0.2.0 release](https://github.com/haziqzes/Project-BEKAL/releases/tag/v0.2.0).
 
-See [V0.2 Windows packaging](docs/v0.2-windows-packaging.md) for the packaging/runtime contract and acceptance evidence.
+Installer:
 
-## Docker/browser development quick start
+```text
+BEKAL_0.2.0_x64-setup.exe
+SHA-256: E110665D77686000D872E9FD391C41AC40D21ECEC682CEB7381CD1C9A4895722
+```
 
-Requires Docker Desktop with Compose.
+**Docker Desktop is required** for BEKAL V0.2 because the application still runs FastAPI and PostgreSQL locally in containers. The installer is currently unsigned, so Windows SmartScreen may show a reputation warning. Verify the published SHA-256 before running the installer.
 
-1. Copy `.env.example` to `.env` and set a local PostgreSQL password.
-2. Run `docker compose up --build -d`.
-3. Run `docker compose ps` and wait until `frontend`, `backend`, and `postgres` are healthy.
-4. Run `docker compose exec backend alembic upgrade head`.
-5. Open `http://localhost:5173`. Select a PDF, review and correct the candidate beside the original, then explicitly confirm to save. Use **Receipt History** to view/edit/delete saved receipts and download CSVs; use **Dashboard** for the selected month's overview.
+See the [Windows installation guide](docs/installation.md) for the complete setup, launch, upgrade, uninstall, and troubleshooting flow.
 
-API checks: `http://localhost:8000/api/health` and `http://localhost:8000/api/health/db`.
+## What BEKAL does
 
-Run smoke tests with `docker compose exec backend python -m pytest`, or from a host Python environment with `python -m pip install -e '.[dev]'` in `backend/`. Run the frontend build with `npm ci` followed by `npm run build` in `frontend/`.
+- accepts grocery receipt PDFs up to 10 MiB;
+- uses embedded PDF text first and local OCR only when necessary;
+- extracts receipt metadata and line items conservatively;
+- flags missing or uncertain information for human review;
+- keeps the original PDF visible while the user edits the candidate;
+- supports manual entry when extraction is not useful;
+- warns about likely duplicate receipts;
+- stores confirmed receipts, items, products, aliases, and categories in PostgreSQL;
+- keeps confirmed original PDFs in private local runtime storage;
+- provides receipt history with reopen, edit, and delete workflows;
+- provides monthly spending/category/product summaries;
+- exports UTF-8 `receipts.csv` and `items.csv` files;
+- remains MYR-only in the current product scope.
 
-Stop services with `docker compose down`. PostgreSQL data persists in its named volume. `docker compose down --volumes` removes that database volume.
+## Core workflow
 
-## Scope and privacy
+```mermaid
+flowchart LR
+    A[Receipt PDF] --> B[Validate]
+    B --> C{Usable embedded text?}
+    C -->|Yes| D[Parse text]
+    C -->|No| E[Local Tesseract OCR]
+    E --> D
+    D --> F[Normalize + flag uncertainty]
+    F --> G[Review beside original PDF]
+    G --> H[Confirm & Save]
+    H --> I[PostgreSQL + private PDF]
+    I --> J[History / Dashboard / CSV]
+```
 
-The approved V0.1 scope is in `BEKAL_Requirements_V0.1.md` and the other `BEKAL_*` design documents. Recipes, pantry tracking, budgeting, authentication, mobile apps, and cloud services remain outside the current product scope.
+The original receipt PDF remains the source of truth. Extraction and review data stay temporary until the user explicitly confirms the receipt.
 
-Real receipts, database files, exports, credentials, and runtime data belong outside source control. `runtime-data/` holds private local receipt files and is ignored by Git. Use only synthetic fixtures in `examples/synthetic/`.
+## Privacy model
 
-Phase 1 PDFs are held in `runtime-data/candidates/` for at most one hour. They are removed when discarded, on backend restart, after expiry, or after a confirmed save. The original filename is never used as a storage path. Upload and extraction alone do not save receipt data to PostgreSQL.
+BEKAL is deliberately local-first.
 
-Phase 2 attempts selectable PDF text first and runs local Tesseract OCR only if that text is unusable. The candidate view shows the extraction method, available receipt metadata, and line items. Missing fields remain blank. Extraction results are returned to the browser only; they are not saved to PostgreSQL. The Docker backend includes Tesseract. Host-based backend development needs a local Tesseract installation for scanned PDFs.
+- No cloud account is required.
+- No paid AI or cloud OCR service is required.
+- The packaged backend listens only on `127.0.0.1:8000`.
+- Packaged PostgreSQL is not exposed on a host TCP port.
+- Real receipts, exports, database files, runtime data, and secrets must never be committed to this repository.
+- Only synthetic receipt fixtures belong in source control.
+- Normal uninstall removes the application but preserves BEKAL private data by design.
 
-Phase 3 prepares conservative product names, initial categories, quantity/unit guesses only when supported, and review warnings. In the browser, edit receipt fields and item rows, add or delete rows, and compare item totals with the subtotal or receipt total. When extraction produces no usable data or fails, the same form supports manual entry with the original PDF visible. Edits remain temporary until explicit confirmation.
+Read [Privacy & Security](docs/privacy-security.md) for the full boundary.
 
-Phase 4 adds **Confirm & Save** after the user checks an acknowledgement beside the original PDF. The backend warns about likely duplicates and lets the user choose whether to continue. Confirmed metadata, item rows, products, categories, and applicable aliases are saved in PostgreSQL; the original PDF is copied to ignored private `runtime-data/receipts/YYYY/MM/` storage. The temporary candidate is removed after a successful save. Database/file errors keep the candidate available for retry. A machine crash in the narrow interval between file creation and database commit could leave an orphan private PDF; ordinary save errors clean it up.
+## Platform support
 
-Phase 5 adds a saved-receipt history table, private original-PDF viewing, explicit metadata and item edits, and confirmed deletion of a saved receipt and its PDF. Phase 6 adds a read-only calendar-month dashboard based only on saved receipts. It shows known spending, receipt count, category item spending, product purchase occurrences, comparable unit prices, and recent receipts. Missing totals remain marked as incomplete. Phase 7 adds on-demand UTF-8 `receipts.csv` and `items.csv` downloads from saved data. Export files are not stored by the server; downloaded copies contain private receipt data and should be kept outside Git.
+| Platform | Status | Notes |
+| --- | --- | --- |
+| Windows desktop | **Supported** | V0.2 NSIS installer + Tauri desktop shell |
+| Browser development mode | **Supported for development** | Docker Compose frontend/backend/PostgreSQL stack |
+| Android | Not supported | Windows `.exe` cannot be installed on Android |
+| iPhone / iPad | Not supported | No iOS application exists |
+| macOS / Linux packaged app | Not released | No supported installer is published |
+| Multi-PC sync | Not supported | Each installation currently owns separate local data |
 
-Phase 8 adds a synthetic end-to-end regression check and startup reconciliation for interrupted private-PDF saves and deletes. Unreferenced PDFs are kept in ignored private `runtime-data/receipts/.recovery/` for manual review.
+A future mobile or multi-device client would require a separate secure networking/authentication design; it is not part of V0.2.
 
-## Release status
+## Architecture at a glance
 
-BEKAL V0.1 is complete and publicly released. BEKAL V0.2 desktop packaging has completed its owner-machine acceptance gate: native installation, packaged-runtime isolation, loopback-only FastAPI, non-exposed PostgreSQL, receipt/dashboard/history behavior, owned-service shutdown, relaunch persistence, uninstall data preservation, reinstall restoration, product version metadata, and Start Menu integration all passed with the corrected Windows installer.
+```text
+Windows user
+   │
+   ▼
+BEKAL.exe (Tauri 2 + bundled React UI)
+   │
+   ▼
+127.0.0.1:8000
+FastAPI
+   │
+   ├── PDF extraction / local OCR
+   ├── review / validation logic
+   ├── receipt history / dashboard / CSV
+   │
+   ▼
+PostgreSQL + private receipt storage
+```
 
-Repository release gates include Git-history privacy scanning, backend tests and Python dependency auditing, frontend build and npm auditing, Rust format/check and dependency auditing, Windows NSIS packaging, installer verification, and GitHub Actions CI.
+The installed runtime lives outside the source repository under the user's local application-data directory. Docker remains an implementation prerequisite in V0.2, not part of the user-facing data model.
+
+Read [Architecture](docs/architecture.md) for the detailed runtime and data flow.
+
+## Documentation
+
+Start with the [documentation index](docs/README.md).
+
+- [Install BEKAL on Windows](docs/installation.md)
+- [User guide](docs/user-guide.md)
+- [Architecture](docs/architecture.md)
+- [Development guide](docs/development.md)
+- [Privacy & Security](docs/privacy-security.md)
+- [Roadmap](docs/roadmap.md)
+- [Changelog](CHANGELOG.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
+
+Historical V0.1/V0.2 planning and release-candidate documents are preserved under [`docs/archive/`](docs/archive/README.md). They are kept for engineering history and are not the current user instructions.
+
+## Development quick start
+
+For browser-mode development:
+
+```powershell
+git clone https://github.com/haziqzes/Project-BEKAL.git
+cd Project-BEKAL
+Copy-Item .env.example .env
+# Set a local PostgreSQL password in .env
+docker compose up --build -d
+docker compose exec backend alembic upgrade head
+```
+
+Then open `http://localhost:5173`.
+
+Run the core checks with:
+
+```powershell
+docker compose exec -T backend pytest -q
+python scripts/check_repository_safety.py --history
+cd frontend
+npm ci
+npm run build
+npm audit --audit-level=low
+```
+
+Desktop development additionally requires Rust/MSVC and the Tauri toolchain. See [Development](docs/development.md).
+
+## Project status
+
+BEKAL V0.1 established and publicly released the receipt-processing core. V0.2 completed the native Windows shell, one-click local service lifecycle, private installed runtime, branded NSIS packaging, owner-machine acceptance, and public Windows release.
+
+The project is currently in **post-release maintenance**. New product scope is not considered part of V0.2 merely because it is useful; future milestones are listed as candidates in the roadmap and require an explicit scope decision.
+
+## Creator
+
+BEKAL is created and maintained by **Wan Mohamad Haziq Mirza**.
+
+The application includes a small `by Wan Haziq` signature as creator credit.
 
 ## License
 
-BEKAL is released under the **MIT License**. See `LICENSE`.
-
-See [architecture](docs/architecture.md), [development notes](docs/development.md), [V0.1 release candidate checks](docs/release-candidate.md), [public-release preparation](docs/public-release-preparation.md), and [V0.2 Windows packaging](docs/v0.2-windows-packaging.md) for details.
+BEKAL is open-source software released under the [MIT License](LICENSE).
