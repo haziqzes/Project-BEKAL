@@ -23,7 +23,7 @@ export function PdfPreview({ url }: { url: string }) {
         setDocument(loaded)
       }
     }).catch(() => {
-      if (!cancelled) setError('Could not display this PDF. The temporary file may have expired.')
+      if (!cancelled) setError('Could not display the original PDF. It may be missing; receipt details remain available.')
     })
     return () => {
       cancelled = true

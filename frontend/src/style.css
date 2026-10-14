@@ -62,5 +62,9 @@ th { color: #53645b; }
 .confirm-panel label { display: flex; align-items: flex-start; gap: 9px; font-weight: 500; }
 .confirm-panel input { margin-top: 4px; }
 .saved-result { margin-top: 24px; padding: 16px; background: #eef6ef; border-radius: 7px; }
+.main-nav { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+.candidate .section-heading .actions { margin-top: 0; }
+.candidate-content .table-scroll { max-width: 100%; }
+.candidate-content td { vertical-align: top; }
 @media (max-width: 760px) { .candidate-content { grid-template-columns: 1fr; } }
 @media (max-width: 540px) { .field-grid { grid-template-columns: 1fr; } }

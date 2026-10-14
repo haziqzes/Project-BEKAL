@@ -8,6 +8,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.candidates import CandidateStore
+from app.history import router as history_router
 from app.intake import router as intake_router
 
 
@@ -34,6 +35,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="BEKAL API", version="0.1.0", lifespan=lifespan)
 app.include_router(intake_router)
+app.include_router(history_router)
 
 
 @app.get("/api/health")

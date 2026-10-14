@@ -2,6 +2,7 @@ import { StrictMode, useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { PdfPreview } from './PdfPreview'
 import { ReviewPanel, type Review, type SavedReceipt } from './ReviewPanel'
+import { HistoryPanel } from './HistoryPanel'
 import './style.css'
 
 type HealthState = 'checking' | 'healthy' | 'unavailable'
@@ -50,6 +51,7 @@ function manualExtraction(candidateId: string): ExtractionData {
 }
 
 function App() {
+  const [view, setView] = useState<'intake' | 'history'>('intake')
   const [backend, setBackend] = useState<HealthState>('checking')
   const [postgres, setPostgres] = useState<HealthState>('checking')
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -173,9 +175,13 @@ function App() {
         <p className="eyebrow">Project BEKAL · V0.1 receipt review</p>
         <h1>Receipt data, under your control.</h1>
         <p className="intro">
-          Select a PDF receipt, compare its extracted details with the original, and correct a temporary candidate. Nothing is saved until you confirm.
+          {view === 'intake' ? 'Select a PDF receipt, compare its extracted details with the original, and correct a temporary candidate. Nothing is saved until you confirm.' : 'Review saved receipts, compare their details with the original PDFs, and explicitly save changes or confirm deletion.'}
         </p>
       </header>
+
+      <nav className="main-nav" aria-label="Main navigation"><button type="button" className={view === 'intake' ? '' : 'secondary'} onClick={() => setView('intake')}>Receipt intake</button><button type="button" className={view === 'history' ? '' : 'secondary'} onClick={() => setView('history')}>Receipt History</button></nav>
+
+      {view === 'history' ? <HistoryPanel /> : <>
 
       <section aria-labelledby="intake-heading" className="intake-panel">
         <h2 id="intake-heading">Select a receipt PDF</h2>
@@ -213,6 +219,7 @@ function App() {
           </div>
         )}
       </section>
+      </>}
 
       <section aria-labelledby="status-heading" className="status-panel">
         <h2 id="status-heading">Service status</h2>

@@ -156,7 +156,9 @@ Verified Phase 3 behavior:
 
 ## Current Phase
 
-### Phase 4 — Persistence ✅ Implementation complete; owner review pending
+### Phase 4 — Persistence ✅
+
+Accepted commit: `c6cf09c feat: persist confirmed receipts and original PDFs locally` (pushed to private `origin/master`).
 
 Verified Phase 4 behavior:
 
@@ -170,7 +172,19 @@ Verified Phase 4 behavior:
 - backend tests, frontend build, security audit, fresh and existing database migrations, and Compose health checks pass
 - runtime PDFs, database data, `.env`, and other private data remain ignored by Git
 
-Current handoff: Phase 4 has reached its exit condition. Do not begin Phase 5 until the owner accepts or redirects the work.
+### Phase 5 — Receipt History / CRUD ✅ Implementation complete; owner review pending
+
+Verified Phase 5 behavior:
+
+- simple date-first saved receipt history with item counts and deterministic ordering
+- stored PDF accessed only by receipt ID, database relative path, and private-root containment checks
+- side-by-side original PDF and persisted metadata/items, with explicit edits, row pen controls, add/delete rows, reconciliation, and update validation
+- transactional updates preserve other receipts and shared products; aliases remain conservative
+- explicit delete confirmation removes receipt/items/PDF; already-missing PDFs can be cleaned up
+- 29 backend tests pass, frontend build passes, and a synthetic browser edit/reload/delete workflow was verified against PostgreSQL and private storage
+- runtime PDFs, database data, `.env`, and other private data remain ignored by Git
+
+Current handoff: Phase 5 has reached its exit condition. The implementation is uncommitted for owner review. Do not begin Phase 6 automatically.
 
 ---
 
@@ -697,8 +711,8 @@ Phase 0  Foundation                    ✅
 Phase 1  Receipt intake / preview      ✅
 Phase 2  Receipt extraction            ✅
 Phase 3  Review & normalization        ✅
-Phase 4  Persistence                   ✅ review pending
-Phase 5  History / CRUD
+Phase 4  Persistence                   ✅
+Phase 5  History / CRUD                ✅ review pending
 Phase 6  Dashboard
 Phase 7  CSV export
 Phase 8  Testing / stabilization
@@ -710,13 +724,11 @@ No phase should silently consume the next phase's scope.
 
 ---
 
-# 19. Current Mission — Phase 4 Persistence Handoff
+# 19. Current Mission — Phase 5 History / CRUD Handoff
 
-Phase 4 was approved after Phase 3 commit `e8aa328`. Its objective is to make a reviewed temporary candidate permanent only after explicit confirmation.
+Phase 4 was accepted and pushed as `c6cf09c`. Phase 5 adds only saved-receipt history, private PDF viewing, explicit persisted edits, and confirmed deletion. The Phase 5 exit condition is met: a synthetic saved receipt was listed, opened beside its PDF, edited, reloaded, and deleted; another saved receipt remained intact. Automated tests cover history ordering, private PDF access and path safety, validation, aliases, rollback, and deletion. Changes remain uncommitted for owner review.
 
-The Phase 4 exit condition is met when Confirm & Save stores structured receipt data in PostgreSQL, stores the original PDF privately, warns about likely duplicates, reuses products and simple aliases conservatively, handles ordinary failures without partial saves, and removes the temporary candidate after success. Synthetic browser, migration, and automated tests verify this path.
-
-Implementation is complete. The owner requested the completed Phase 4 work be pushed to the existing private repository after final review. Do not begin Phase 5 automatically. A future phase requires owner direction.
+The accepted Phase 4 crash window between PDF copy and database commit may leave an orphan PDF. Phase 5's file rename and database delete also have narrow machine-crash windows; ordinary failures restore the file. Defer crash reconciliation to Phase 8 stabilization. Do not begin Phase 6 without owner direction.
 
 ---
 
