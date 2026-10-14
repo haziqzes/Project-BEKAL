@@ -230,6 +230,10 @@ function App() {
         <div className="status-row"><span>Backend</span><strong>{backend}</strong></div>
         <div className="status-row"><span>PostgreSQL</span><strong>{postgres}</strong></div>
       </section>
+
+      <footer className="creator-credit" aria-label="Creator credit">
+        by Wan Haziq
+      </footer>
     </main>
   )
 }
