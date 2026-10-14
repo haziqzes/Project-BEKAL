@@ -28,3 +28,10 @@ Before changing repository visibility:
 After all gates pass, the approved next action is to make `haziqzes/Project-BEKAL` public. Do not weaken any privacy, test, or dependency gate to reach publication.
 
 To enable the local hook in this checkout, run `git config core.hooksPath .githooks`. The hook checks staged content. CI checks the full reachable Git history on every push and pull request. The hook and CI are defense in depth; human review is still required.
+## Public release result
+
+BEKAL V0.1 passed the final privacy, dependency, runtime, and GitHub CI release gates. The repository was then changed from private to public under the MIT License.
+
+The release gate used commit `23ad65fbf6109810f63b6e7e1c31fb6abb73cbcb` and GitHub Actions run `38590014916`. Real receipt data, runtime data, exports, credentials, databases, and private logs remain outside Git.
+
+Future screenshots, demo videos, releases, and new-version work must continue to use synthetic public material and preserve the project's private-user-data boundary.

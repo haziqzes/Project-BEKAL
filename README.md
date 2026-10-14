@@ -38,7 +38,7 @@ Phase 8 adds a synthetic end-to-end regression check and startup reconciliation 
 
 ## Release status
 
-BEKAL V0.1 has passed the local release-candidate workflow and public-release preparation checks. The repository includes Git-history privacy scanning, staged-file safety checks, read-only CI verification, and a wholly synthetic demo receipt. Before any public visibility change, re-run the final privacy/dependency checks and inspect the resulting CI run.
+BEKAL V0.1 is complete and publicly released. The final release gate passed Git-history privacy scanning, backend tests and dependency auditing, frontend build and dependency auditing, local Docker/runtime verification, loopback-only exposure checks, and GitHub CI. The repository includes staged-file safety checks and a wholly synthetic demo receipt; real receipt and runtime data remain outside source control.
 
 ## License
 

@@ -5,7 +5,7 @@
 > **Owner / Creator:** Wan Mohamad Haziq Mirza  
 > **Canonical local workspace:** `C:\Projects\Project-BEKAL`  
 > **Repository:** `haziqzes/Project-BEKAL`  
-> **Repository status:** MIT-licensed V0.1; public release authorized
+> **Repository status:** Public — MIT-licensed V0.1
 > **Current target:** BEKAL V0.1  
 > **Last updated:** 2026-10-14
 
@@ -215,7 +215,7 @@ The frozen 13-step acceptance path has a synthetic end-to-end check through extr
 
 ### Phase 10 — Public-Release Preparation ✅
 
-Reversible preparation is complete: tracked-path and recognizable-secret history checks, staged-file hook, privacy/test/build/dependency-audit CI, synthetic demo receipt, documentation, creator credit, ignore rules, and loopback-bound Compose review. The owner selected the MIT License and authorized public release after the final privacy, dependency, runtime, and CI gates pass. See `docs/public-release-preparation.md`.
+BEKAL V0.1 completed its public-release gates successfully. The repository is public under the MIT License. Reachable-history privacy scanning, backend tests and dependency audit, frontend build and dependency audit, local Docker/runtime checks, loopback-only exposure review, and GitHub CI passed before publication. Synthetic demo material remains the only receipt data tracked by Git.
 
 ---
 
@@ -762,13 +762,11 @@ No phase should silently consume the next phase's scope.
 
 ---
 
-# 19. Current Mission — V0.1 Public Release Gate
+# 19. Current Mission — BEKAL V0.1 Complete
 
-BEKAL V0.1 implementation and reversible public-release preparation are complete. The owner selected the MIT License and authorized the repository to become public after the final release gates pass.
+BEKAL V0.1 has reached its frozen Definition of Done and completed the approved public-release process. The repository is public under the MIT License.
 
-For this release, verify the exact release commit with Git-history privacy scanning, backend tests and dependency audit, frontend build and dependency audit, local Docker health, loopback-bound service exposure, and successful GitHub CI. If every gate passes, the approved final action is to change `haziqzes/Project-BEKAL` from private to public.
-
-After that visibility transition, BEKAL V0.1 is complete. Future scope, licensing, architecture, or visibility changes again require normal owner review.
+Do not extend V0.1 simply because a new feature idea appears. Future product work begins as a new explicitly approved milestone or version and remains subject to the existing privacy, architecture, scope-control, and confirmation-first operating rules.
 
 ---
 
