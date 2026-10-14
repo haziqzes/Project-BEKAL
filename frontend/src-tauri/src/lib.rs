@@ -31,7 +31,7 @@ pub fn run() {
                     .lock()
                     .unwrap_or_else(|poisoned| poisoned.into_inner());
 
-                state.start()
+                state.start(app.handle())
             };
 
             match startup_result {
