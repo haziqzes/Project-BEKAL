@@ -8,7 +8,7 @@
     "frontendDist": "../dist",
     "devUrl": "http://localhost:5173",
     "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run desktop:prepare && npm run build"
+    "beforeBuildCommand": "npm run build"
   },
   "app": {
     "windows": [
@@ -42,11 +42,11 @@
       "generated-runtime"
     ],
     "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.icns",
-      "icons/icon.ico"
+      "generated-icons/32x32.png",
+      "generated-icons/128x128.png",
+      "generated-icons/128x128@2x.png",
+      "generated-icons/icon.icns",
+      "generated-icons/icon.ico"
     ],
     "windows": {
       "allowDowngrades": false,
@@ -57,8 +57,8 @@
       "nsis": {
         "installMode": "currentUser",
         "startMenuFolder": "BEKAL",
-        "installerIcon": "icons/icon.ico",
-        "uninstallerIcon": "icons/icon.ico"
+        "installerIcon": "generated-icons/icon.ico",
+        "uninstallerIcon": "generated-icons/icon.ico"
       }
     }
   }
